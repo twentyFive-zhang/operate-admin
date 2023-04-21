@@ -73,6 +73,20 @@ export async function detailInfoUsingGET9(
   });
 }
 
+/** 删除退款接口 DELETE /yw/drawback/${param0} */
+export async function deletedUsingDELETE9(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.deletedUsingDELETE9Params,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.DataResult>(`/yw/drawback/${param0}`, {
+    method: 'DELETE',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 退款新增使用 根据账户查询最后一次充值记录 POST /yw/drawback/getDrawback/${param0} */
 export async function getAccountListUsingPOST(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

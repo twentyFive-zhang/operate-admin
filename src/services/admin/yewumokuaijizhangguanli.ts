@@ -73,6 +73,20 @@ export async function detailInfoUsingGET8(
   });
 }
 
+/** 删除记账接口 DELETE /yw/bookkeeping/${param0} */
+export async function deletedUsingDELETE8(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.deletedUsingDELETE8Params,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.DataResult>(`/yw/bookkeeping/${param0}`, {
+    method: 'DELETE',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 记账新增修改抵扣账户使用  根据账户名称 记账查询抵扣账户信息 GET /yw/bookkeeping/getDeduction/${param0}/${param1} */
 export async function getDeductionUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

@@ -40,6 +40,10 @@ declare namespace API {
     canalPoint?: number;
     /** 百度币 */
     currency?: number;
+    /** 是否有抵扣(0否,1是) */
+    deductionStatus?: number;
+    /** 是否有退款(0否,1是) */
+    drawbackStatus?: number;
     /** 拿到点位 */
     getPoint?: number;
     /** 端口id */
@@ -86,6 +90,8 @@ declare namespace API {
     createName?: string;
     /** 创建时间 */
     createTime?: string;
+    /** 拿到点位 */
+    getPoint?: number;
     /** id */
     id?: number;
     pid?: number;
@@ -246,6 +252,8 @@ declare namespace API {
     canalPoint?: number;
     /** 回款类型 */
     collection?: string;
+    /** 日期 */
+    createTime?: string;
     /** 百度币 */
     currency?: number;
     /** 抵扣金额 */
@@ -267,12 +275,18 @@ declare namespace API {
     accountName?: string;
     /** 是否回款(0否 1 是) */
     collectionStatus?: number;
+    /** 是否抵扣完结(0否,1是) */
+    deductionEndStatus?: number;
     /** 是否有抵扣(0否,是) */
     deductionStatus?: number;
     /** 结束时间 */
     endTime?: string;
+    /** 对外支付 */
+    externalPayment?: string;
     /** 对外支付状态(0未支付,1已支付) */
     externalPaymentStatus?: number;
+    /** 拿到点位 */
+    getPoint?: number;
     /** 第几页 */
     pageNum?: number;
     /** 分页数量 */
@@ -309,9 +323,11 @@ declare namespace API {
     /** 抵扣账户名称 */
     deductionAccountName?: string;
     deductionAmount?: number;
+    deductionEndStatus?: number;
     deductionStatus?: number;
     /** 是否有抵扣(0否,1是) */
     deductionStatusStr?: string;
+    deleted?: number;
     externalPayment?: string;
     externalPaymentStatus?: number;
     /** 对外支付状态(0未支付,1已支付) */
@@ -354,9 +370,11 @@ declare namespace API {
     createTime?: string;
     currency?: number;
     deductionAmount?: number;
+    deductionEndStatus?: number;
     deductionStatus?: number;
     /** 是否有抵扣(0否,1是) */
     deductionStatusStr?: string;
+    deleted?: number;
     externalPayment?: string;
     externalPaymentStatus?: number;
     /** 对外支付状态(0未支付,1已支付) */
@@ -392,10 +410,14 @@ declare namespace API {
     canalPoint?: number;
     /** 回款类型 */
     collection?: string;
+    /** 日期 */
+    createTime?: string;
     /** 百度币 */
     currency?: number;
     /** 抵扣金额 */
     deductionAmount?: number;
+    /** 是否抵扣完结(0否,1是) */
+    deductionEndStatus?: number;
     /** 对外支付 */
     externalPayment?: string;
     /** 拿到点位 */
@@ -800,6 +822,8 @@ declare namespace API {
     accountId?: number;
     /** 抵扣账户名称 */
     accountName?: string;
+    /** 抵扣账户存在提醒 */
+    msg?: string;
   };
 
   type deletedUserUsingDELETEParams = {
@@ -862,6 +886,24 @@ declare namespace API {
   };
 
   type deletedUsingDELETE7Params = {
+    /** swagger测试用(模拟token传入)非必填 header */
+    authorization?: string;
+    /** id */
+    id: number;
+    /** swagger测试用(模拟刷新token传入)非必填 header */
+    refresh_token?: string;
+  };
+
+  type deletedUsingDELETE8Params = {
+    /** swagger测试用(模拟token传入)非必填 header */
+    authorization?: string;
+    /** id */
+    id: number;
+    /** swagger测试用(模拟刷新token传入)非必填 header */
+    refresh_token?: string;
+  };
+
+  type deletedUsingDELETE9Params = {
     /** swagger测试用(模拟token传入)非必填 header */
     authorization?: string;
     /** id */
@@ -1087,6 +1129,7 @@ declare namespace API {
     /** 创建时间文本 */
     createTimeText?: string;
     currency?: number;
+    deleted?: number;
     drawbackAmount?: number;
     drawbackNumber?: string;
     drawbackStatus?: number;
@@ -1665,6 +1708,8 @@ declare namespace API {
   };
 
   type PortAddReqVO = {
+    /** 拿到点位 */
+    getPoint?: number;
     /** 端口名称 */
     portName?: string;
     /** 端口编号 */
@@ -1673,6 +1718,8 @@ declare namespace API {
 
   type PortAndSalesmanRespVo = {
     aid?: number;
+    /** 拿到点位 */
+    getPoint?: number;
     /** 端口名称 */
     portName?: string;
     /** 端口编号 */
@@ -1682,6 +1729,8 @@ declare namespace API {
   };
 
   type PortPageReqVO = {
+    /** 拿到点位 */
+    getPoint?: number;
     /** 第几页 */
     pageNum?: number;
     /** 分页数量 */
@@ -1693,6 +1742,8 @@ declare namespace API {
   };
 
   type PortUpdateReqVO = {
+    /** 拿到点位 */
+    getPoint?: number;
     /** 端口id */
     id?: number;
     /** 端口名称 */
@@ -1898,6 +1949,7 @@ declare namespace API {
   type SysPort = {
     createTime?: string;
     deleted?: number;
+    getPoint?: number;
     id?: number;
     portName?: string;
     portNumber?: string;
@@ -2246,7 +2298,9 @@ declare namespace API {
     createTime?: string;
     currency?: number;
     deductionAmount?: number;
+    deductionEndStatus?: number;
     deductionStatus?: number;
+    deleted?: number;
     externalPayment?: string;
     externalPaymentStatus?: number;
     externalSettlement?: number;
@@ -2267,6 +2321,7 @@ declare namespace API {
     createName?: string;
     createTime?: string;
     currency?: number;
+    deleted?: number;
     drawbackAmount?: number;
     drawbackNumber?: string;
     drawbackStatus?: number;

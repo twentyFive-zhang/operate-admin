@@ -33,6 +33,7 @@ export const errorConfig: RequestConfig = {
       console.log({ res });
       const { success, data, code, msg: errorMsg, showType } = res as unknown as ResponseStructure;
       if (!success) {
+        console.log(errorMsg);
         const error: any = new Error(errorMsg);
         error.name = 'BizError';
         error.info = { code, msg: errorMsg, showType, data };
@@ -49,13 +50,16 @@ export const errorConfig: RequestConfig = {
         console.log({ errorInfo });
         if (errorInfo) {
           const { msg: errorMsg, code } = errorInfo;
-          message.error(errorMsg);
+          console.log({ errorMsg, code });
+
+          // message.error(errorMsg);
           switch (code) {
             case 401001:
               message.error(errorMsg);
               toLogin();
               break;
             case 401002:
+              message.error(errorMsg);
               break;
             default:
               message.error(errorMsg);

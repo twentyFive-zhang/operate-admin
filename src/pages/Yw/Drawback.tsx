@@ -19,6 +19,7 @@ import {
   addUsingPOST1,
   getAccountListUsingPOST,
   importDrawbackUsingPOST,
+  deletedUsingDELETE9,
 } from '@/services/admin/yewumokuaituikuanguanli';
 import { Button, Modal, Space, message, Upload } from 'antd';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
@@ -155,6 +156,9 @@ const AccountListModal: React.FC<{
           options: false,
           actionRef,
           formRef,
+          expandable: {
+            expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
+          },
           rowKey: ({ typeId, accountId }) => `${typeId}-${accountId}`,
           columns: [
             {
@@ -197,6 +201,8 @@ const AccountListModal: React.FC<{
               title: '是否有退款',
               dataIndex: 'drawbackStatus',
               hideInSearch: true,
+              render: (_dom, { drawbackStatus }) =>
+                drawbackStatus === 1 ? <span {...{ style: { color: 'red' } }}>是</span> : <>否</>,
               valueType: 'select',
               fieldProps: {
                 options: [
@@ -626,7 +632,21 @@ const Drawback: React.FC = () => {
           >
             详情
           </Button>,
-          <Button key="delete" {...{ type: 'primary', danger: true, onClick: () => {} }}>
+          <Button
+            key="delete"
+            {...{
+              type: 'primary',
+              danger: true,
+              onClick: async () => {
+                if (!record.id) return;
+                try {
+                  await deletedUsingDELETE9({ id: record.id });
+                  message.success('删除成功');
+                  action?.reload();
+                } catch {}
+              },
+            }}
+          >
             删除
           </Button>,
         ];
@@ -791,7 +811,6 @@ const Drawback: React.FC = () => {
           ],
         }}
       ></ProTable>
-
       <BetaSchemaForm<API.DrawbackUpdateReqVO>
         {...{
           modalProps: { width: '80%' },

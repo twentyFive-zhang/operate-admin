@@ -9,6 +9,7 @@ import {
   type ActionType,
   ProDescriptions,
   type ProDescriptionsItemProps,
+  // type ColumnsState
 } from '@ant-design/pro-components';
 import {
   pageInfoUsingPOST9,
@@ -19,6 +20,7 @@ import {
   importBookkeepingUsingPOST,
   batchExportUsingPOST,
   batchCollectionUsingPOST,
+  deletedUsingDELETE8,
 } from '@/services/admin/yewumokuaijizhangguanli';
 import { batchCollectionUsingPOST1 } from '@/services/admin/yewumokuaituikuanguanli';
 import { Button, Input, Upload, message, Modal, Table, Switch } from 'antd';
@@ -28,6 +30,7 @@ import { pageInfoUsingPOST5 } from '@/services/admin/xitongmokuaiyewuyuanguanli'
 import { pageInfoUsingPOST6 } from '@/services/admin/xitongmokuaileixingguanli';
 import { pageInfoUsingPOST4 } from '@/services/admin/xitongmokuaiduankouguanli';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
+import { useColumnsState } from '@/hooks';
 
 /** 批量回款 */
 
@@ -92,22 +95,23 @@ export const UseModalMultiple = <T extends object>(
                     summary: () => (
                       <Table.Summary>
                         <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={2}>
-                            总回款金额
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell index={1}>
+                          <Table.Summary.Cell index={0}>总回款金额</Table.Summary.Cell>
+                          <Table.Summary.Cell index={1} colSpan={2}>
                             {/* @ts-ignore */}
-                            {list?.reduce((all, item) => (item.collectionAmount || 0) + all, 0) ||
-                              0}
+                            {parseFloat(
+                              // @ts-ignore
+                              list?.reduce((all, item) => (item.collectionAmount || 0) + all, 0) ||
+                                0,
+                            ).toFixed(2)}
                           </Table.Summary.Cell>
                         </Table.Summary.Row>
                       </Table.Summary>
                     ),
                     columns: [
-                      {
-                        title: '单号',
-                        dataIndex: 'rechargeNumber',
-                      },
+                      // {
+                      //   title: '单号',
+                      //   dataIndex: 'rechargeNumber',
+                      // },
                       {
                         title: '账号名称',
                         dataIndex: 'accountName',
@@ -116,6 +120,10 @@ export const UseModalMultiple = <T extends object>(
                       {
                         title: '回款金额',
                         dataIndex: 'collectionAmount',
+                      },
+                      {
+                        title: '渠道点位',
+                        dataIndex: 'canalPoint',
                       },
                     ],
                   }}
@@ -719,6 +727,7 @@ const Bookkeeping: React.FC = () => {
       colProps: {
         span: 24,
       },
+
       // copyIconProps: false,
       fieldProps: {
         copyIconProps: false,
@@ -737,31 +746,61 @@ const Bookkeeping: React.FC = () => {
       // },
       columns: [
         {
-          // title: '抵扣账户名称',
-          dataIndex: 'accountName',
-          readonly: true,
-          fieldProps: (form, config) => ({
-            onBlur: (...args) => {
-              console.log({ args, form, config });
+          valueType: 'group',
+          columns: [
+            {
+              title: '抵扣账户名称',
+              dataIndex: 'accountName',
+              readonly: true,
+              fieldProps: (form, config) => ({
+                onBlur: (...args) => {
+                  console.log({ args, form, config });
+                },
+              }),
+              // colProps: { span: 12 },
             },
-          }),
-          colProps: { span: 12 },
-        },
-        {
-          title: '抵扣账户ID',
-          dataIndex: 'accountId',
-          formItemProps: {
-            noStyle: true,
-          },
-          renderFormItem: () => <></>,
+            {
+              title: '抵扣金额',
+              dataIndex: 'amount',
+              valueType: 'digit',
+              fieldProps: {
+                precision: 2,
+              },
+              formItemProps: {
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入抵扣金额',
+                  },
+                ],
+              },
+              // colProps: { span: 8 },
+            },
+            {
+              title: '抵扣账户ID',
+              dataIndex: 'accountId',
+              formItemProps: {
+                noStyle: true,
+              },
+              renderFormItem: () => <></>,
+            },
+          ],
         },
       ],
+      // columns: ,
     },
+    // {
+    //   valueType:'dependency',
+    //   name: ['type'],
+    // },
 
     {
       title: '抵扣金额',
       dataIndex: 'deductionAmount',
       hideInSearch: true,
+      fieldProps: {
+        disabled: true,
+      },
     },
     {
       title: '是否抵扣',
@@ -855,6 +894,7 @@ const Bookkeeping: React.FC = () => {
       valueType: 'option',
       fixed: 'right',
       hideInDescriptions: true,
+      width: 240,
       render: (_text, record, _i, action) => {
         return [
           <Button
@@ -880,7 +920,21 @@ const Bookkeeping: React.FC = () => {
             详情
           </Button>,
 
-          <Button key="delete" {...{ type: 'primary', danger: true, onClick: () => {} }}>
+          <Button
+            key="delete"
+            {...{
+              type: 'primary',
+              danger: true,
+              onClick: async () => {
+                if (!record.id) return;
+                try {
+                  await deletedUsingDELETE8({ id: record.id });
+                  message.success('删除成功');
+                  action?.reload();
+                } catch {}
+              },
+            }}
+          >
             删除
           </Button>,
         ];
@@ -940,9 +994,20 @@ const Bookkeeping: React.FC = () => {
     getOptions();
   }, []);
 
-  const onValuesChange = (changedValues: any) => {
+  const onValuesChange = (changedValues: any, values) => {
     // console.log({ changedValues });
     const [key, value] = Object.entries(changedValues)?.[0] || [];
+    console.log({ key, value });
+    if (key === 'list') {
+      const { list } = values;
+
+      formRef.current?.setFieldsValue({
+        deductionAmount: parseFloat(
+          // @ts-ignore
+          list?.reduce((all, item) => (item.amount || 0) + all, 0) || 0,
+        ).toFixed(2),
+      });
+    }
     if (key === 'accountId') {
       const { accountId: list = [] } = optionJson;
       const { portName, salesmanName, trade, getPoint } =
@@ -967,6 +1032,7 @@ const Bookkeeping: React.FC = () => {
     'bookkeeping',
     actionRef,
   );
+  const { columnsState } = useColumnsState('bookkeeping-table');
   return (
     <PageContainer
       {...{
@@ -990,6 +1056,10 @@ const Bookkeeping: React.FC = () => {
           rowSelection: {},
           formRef: searchFormRef,
           actionRef,
+          columnsState: columnsState,
+          pagination: {
+            defaultPageSize: 10,
+          },
           toolBarRender: (action, { selectedRows }) => [
             <Button
               key="multiple-update"
