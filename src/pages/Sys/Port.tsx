@@ -49,9 +49,17 @@ const Port: React.FC = () => {
     {
       title: '端口编号',
       dataIndex: 'portNumber',
+      // valueType: 'digit',
+      // fieldProps: {
+      //   precision: 0,
+      // },
+    },
+    {
+      title: '拿到点位',
+      dataIndex: 'getPoint',
       valueType: 'digit',
       fieldProps: {
-        precision: 0,
+        precision: 2,
       },
     },
   ];
@@ -87,6 +95,15 @@ const Port: React.FC = () => {
     {
       title: '端口编号',
       dataIndex: 'portNumber',
+    },
+
+    {
+      title: '拿到点位',
+      dataIndex: 'getPoint',
+      valueType: 'digit',
+      fieldProps: {
+        precision: 2,
+      },
     },
     {
       title: '操作',

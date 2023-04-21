@@ -136,7 +136,10 @@ const Role: React.FC = () => {
       valueType: 'dateRange',
       hideInTable: true,
       hideInForm: true,
-      transform: ([startTime, endTime]) => ({ startTime, endTime }),
+      transform: ([startTime, endTime]) => ({
+        startTime: startTime ? `${startTime} 00:00:00` : startTime,
+        endTime: endTime ? `${endTime} 23:59:59` : startTime,
+      }),
     },
     {
       title: '状态',

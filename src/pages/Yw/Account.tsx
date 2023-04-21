@@ -187,7 +187,7 @@ const Account: React.FC = () => {
     },
     {
       title: '修改时间',
-      dataIndex: 'update',
+      dataIndex: 'updateTime',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,

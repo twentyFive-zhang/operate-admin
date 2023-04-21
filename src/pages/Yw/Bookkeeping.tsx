@@ -443,6 +443,26 @@ const Bookkeeping: React.FC = () => {
       },
       transform: (v) => ({ trade: v }),
     },
+
+    {
+      title: '类型',
+      dataIndex: 'typeId',
+      hideInTable: true,
+      valueType: 'select',
+      hideInDescriptions: true,
+      colProps: { span: 12 },
+      formItemProps: {
+        rules: [{ required: true, message: '请选择类型' }],
+      },
+      fieldProps: {
+        showSearch: true,
+        options: [],
+        fieldNames: {
+          label: 'typeName',
+          value: 'id',
+        },
+      },
+    },
     {
       title: '端口',
       dataIndex: 'portId',
@@ -518,16 +538,19 @@ const Bookkeeping: React.FC = () => {
         ],
       },
       render: (_dom, { deductionEndStatus, id }, index, action) => {
-        console.log({ deductionEndStatus });
+        // console.log({ deductionEndStatus });
         if (typeof deductionEndStatus === 'number') {
           return (
             <Switch
               {...{
                 checkedChildren: '完结',
                 unCheckedChildren: '未完结',
-                onClick: async () => {
+                checked: !!deductionEndStatus,
+                onClick: async (v) => {
                   try {
-                    // await
+                    await updateUsingPUT({ id, deductionEndStatus: v ? 1 : 0 });
+                    message.success('修改是否抵扣完结成功');
+                    action?.reload();
                   } catch {}
                 },
               }}
@@ -540,6 +563,10 @@ const Bookkeeping: React.FC = () => {
     {
       title: '拿到点位',
       dataIndex: 'getPoint',
+      valueType: 'digit',
+      fieldProps: {
+        precision: 2,
+      },
       // hideInSearch: true,
     },
     {
@@ -558,6 +585,14 @@ const Bookkeeping: React.FC = () => {
       title: '对外支付',
       dataIndex: 'externalPayment',
       // hideInSearch: true,
+    },
+    {
+      title: '日期',
+      dataIndex: 'createTime',
+      valueType: 'date',
+      hideInTable: true,
+      hideInSearch: true,
+      hideInDescriptions: true,
     },
     {
       title: '对外支付状态',
@@ -592,25 +627,6 @@ const Bookkeeping: React.FC = () => {
       },
     },
     {
-      title: '类型',
-      dataIndex: 'typeId',
-      hideInTable: true,
-      valueType: 'select',
-      hideInDescriptions: true,
-      colProps: { span: 12 },
-      formItemProps: {
-        rules: [{ required: true, message: '请选择类型' }],
-      },
-      fieldProps: {
-        showSearch: true,
-        options: [],
-        fieldNames: {
-          label: 'typeName',
-          value: 'id',
-        },
-      },
-    },
-    {
       title: '抵扣账户搜索',
       dataIndex: 'deductionAccountNameSearch',
       hideInSearch: true,
@@ -623,18 +639,19 @@ const Bookkeeping: React.FC = () => {
           <Input.Search
             {...{
               onSearch: async (value) => {
-                form.setFields([
+                console.log({ form, formRef });
+                formRef.current?.setFields?.([
                   { name: 'deductionAccountNameSearch', warnings: [] },
                   { name: 'typeId', warnings: [] },
                 ]);
                 console.log({ value });
-                const { typeId, list = [] } = form.getFieldsValue();
+                const { typeId, list = [] } = formRef.current?.getFieldsValue();
                 console.log({ list });
                 if (!typeId) {
-                  form.setFields([{ name: 'typeId', warnings: ['请先选择类型'] }]);
+                  formRef.current?.setFields([{ name: 'typeId', warnings: ['请先选择类型'] }]);
                 }
                 if (!value) {
-                  form.setFields([
+                  formRef.current?.setFields([
                     { name: 'deductionAccountNameSearch', warnings: ['请输入账户名称'] },
                   ]);
                   return;
@@ -648,7 +665,7 @@ const Bookkeeping: React.FC = () => {
                         title: '提示',
                         content: data?.msg,
                         onOk: () => {
-                          form.setFieldValue(
+                          formRef.current?.setFieldValue(
                             'list',
                             list?.find(
                               (item: { accountName?: string; accountId?: string }) =>
@@ -661,7 +678,7 @@ const Bookkeeping: React.FC = () => {
                       });
                       return;
                     }
-                    form.setFieldValue(
+                    formRef.current?.setFieldValue(
                       'list',
                       list?.find(
                         (item: { accountName?: string; accountId?: string }) =>
@@ -674,7 +691,7 @@ const Bookkeeping: React.FC = () => {
                 } catch (e: any) {
                   console.log(e?.message);
 
-                  form.setFields([
+                  formRef.current?.setFields([
                     { name: 'deductionAccountNameSearch', warnings: [e?.message || ''] },
                   ]);
                 }
@@ -808,7 +825,7 @@ const Bookkeeping: React.FC = () => {
     },
     {
       title: '更新日期',
-      dataIndex: 'update',
+      dataIndex: 'updateTime',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -820,7 +837,10 @@ const Bookkeeping: React.FC = () => {
       hideInTable: true,
       hideInForm: true,
       hideInDescriptions: true,
-      transform: ([startTime, endTime]) => ({ startTime, endTime }),
+      transform: ([startTime, endTime]) => ({
+        startTime: startTime ? `${startTime} 00:00:00` : startTime,
+        endTime: endTime ? `${endTime} 23:59:59` : startTime,
+      }),
     },
     {
       title: '备注',
@@ -835,7 +855,7 @@ const Bookkeeping: React.FC = () => {
       valueType: 'option',
       fixed: 'right',
       hideInDescriptions: true,
-      render: (_text, record) => {
+      render: (_text, record, _i, action) => {
         return [
           <Button
             key="update"
@@ -858,6 +878,10 @@ const Bookkeeping: React.FC = () => {
             }}
           >
             详情
+          </Button>,
+
+          <Button key="delete" {...{ type: 'primary', danger: true, onClick: () => {} }}>
+            删除
           </Button>,
         ];
       },
@@ -921,9 +945,11 @@ const Bookkeeping: React.FC = () => {
     const [key, value] = Object.entries(changedValues)?.[0] || [];
     if (key === 'accountId') {
       const { accountId: list = [] } = optionJson;
-      const { portName, salesmanName, trade } = list.find((item) => item.id === value) || {};
+      const { portName, salesmanName, trade, getPoint } =
+        // @ts-ignore
+        list.find((item) => item.id === value) || {};
       console.log({ portName, salesmanName, optionJson });
-      formRef.current?.setFieldsValue({ portName, salesmanName, trade });
+      formRef.current?.setFieldsValue({ portName, salesmanName, trade, getPoint });
     }
     // console.log({ key, value, changedValues });
   };
@@ -960,7 +986,7 @@ const Bookkeeping: React.FC = () => {
         {...{
           headerTitle: '记账列表',
           rowKey: 'id',
-          scroll: { x: 2600 },
+          scroll: { x: 2700 },
           rowSelection: {},
           formRef: searchFormRef,
           actionRef,
@@ -1000,6 +1026,7 @@ const Bookkeeping: React.FC = () => {
                 onClick: () => {
                   formRef.current?.resetFields();
                   formRef.current?.setFieldValue('typeId', optionJson?.typeId?.[0]?.id);
+                  formRef.current?.setFieldValue('createTime', new Date().getTime());
                   triggerToOpenModal('add');
                 },
               }}
@@ -1013,6 +1040,10 @@ const Bookkeeping: React.FC = () => {
             const { data } = await pageInfoUsingPOST9({ ...rest, pageNum });
             return { data: data?.list || [], total: data?.totalRows || 0 };
           },
+          // onRow: ({ deductionEndStatus }) => {
+          //   return { style: deductionEndStatus === 0 ? { background: 'gray' } : {} };
+          // },
+          // bordered: true,
         }}
       ></ProTable>
       <BetaSchemaForm<API.BookkeepUpdateReqVO>

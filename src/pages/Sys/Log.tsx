@@ -57,7 +57,10 @@ const Log: React.FC = () => {
       valueType: 'dateRange',
       hideInTable: true,
       search: {
-        transform: ([startTime, endTime]) => ({ startTime, endTime }),
+        transform: ([startTime, endTime]) => ({
+          startTime: startTime ? `${startTime} 00:00:00` : startTime,
+          endTime: endTime ? `${endTime} 23:59:59` : startTime,
+        }),
       },
     },
     {

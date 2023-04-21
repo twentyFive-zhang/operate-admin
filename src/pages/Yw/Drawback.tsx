@@ -180,6 +180,32 @@ const AccountListModal: React.FC<{
               hideInSearch: true,
             },
             {
+              title: '是否抵扣',
+              dataIndex: 'deductionStatus',
+              hideInSearch: true,
+              valueType: 'select',
+              render: (_dom, { deductionStatus }) =>
+                deductionStatus === 1 ? <span {...{ style: { color: 'red' } }}>是</span> : <>否</>,
+              fieldProps: {
+                options: [
+                  { value: 1, label: '是' },
+                  { value: 0, label: '否' },
+                ],
+              },
+            },
+            {
+              title: '是否有退款',
+              dataIndex: 'drawbackStatus',
+              hideInSearch: true,
+              valueType: 'select',
+              fieldProps: {
+                options: [
+                  { value: 1, label: '是' },
+                  { value: 0, label: '否' },
+                ],
+              },
+            },
+            {
               dataIndex: 'portName',
               title: '端口名称',
               hideInSearch: true,
@@ -375,7 +401,10 @@ const Drawback: React.FC = () => {
       hideInForm: true,
       hideInDescriptions: true,
       valueType: 'dateRange',
-      transform: ([startDrawbackTime, endDrawbackTime]) => ({ startDrawbackTime, endDrawbackTime }),
+      transform: ([startDrawbackTime, endDrawbackTime]) => ({
+        startDrawbackTime: startDrawbackTime ? `${startDrawbackTime} 00:00:00` : startDrawbackTime,
+        endDrawbackTime: endDrawbackTime ? `${endDrawbackTime} 23:59:59` : endDrawbackTime,
+      }),
     },
     {
       title: '退款时间',
@@ -397,7 +426,10 @@ const Drawback: React.FC = () => {
       hideInForm: true,
       hideInDescriptions: true,
       valueType: 'dateRange',
-      transform: ([startTime, endTime]) => ({ startTime, endTime }),
+      transform: ([startTime, endTime]) => ({
+        startTime: startTime ? `${startTime} 00:00:00` : startTime,
+        endTime: endTime ? `${endTime} 23:59:59` : startTime,
+      }),
     },
     {
       title: '端口',
@@ -551,7 +583,7 @@ const Drawback: React.FC = () => {
     },
     {
       title: '更新日期',
-      dataIndex: 'update',
+      dataIndex: 'updateTime',
       valueType: 'date',
       hideInSearch: true,
       hideInForm: true,
@@ -570,7 +602,7 @@ const Drawback: React.FC = () => {
       hideInDescriptions: true,
       //@ts-ignore
       fixed: 'right',
-      render: (_text, record) => {
+      render: (_text, record, _i, action) => {
         return [
           <Button
             key="update"
@@ -593,6 +625,9 @@ const Drawback: React.FC = () => {
             }}
           >
             详情
+          </Button>,
+          <Button key="delete" {...{ type: 'primary', danger: true, onClick: () => {} }}>
+            删除
           </Button>,
         ];
       },
@@ -685,7 +720,7 @@ const Drawback: React.FC = () => {
       <DrawerBackModal></DrawerBackModal>
       <ProTable<API.DrawbackRespVO>
         {...{
-          scroll: { x: 2000 },
+          scroll: { x: 2600 },
           rowKey: 'id',
           headerTitle: '退款列表',
           formRef: searchFormRef,
