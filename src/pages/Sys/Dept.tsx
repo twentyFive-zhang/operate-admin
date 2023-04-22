@@ -114,6 +114,9 @@ const Dept: React.FC = () => {
       <ProTable
         {...{
           headerTitle: '部门列表',
+          pagination: {
+            defaultPageSize: 10,
+          },
           columns,
           request,
           rowKey: 'id',

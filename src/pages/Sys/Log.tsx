@@ -123,8 +123,10 @@ const Log: React.FC = () => {
           ],
           rowSelection: {},
           bordered: true,
-          pagination: {},
           search: {},
+          pagination: {
+            defaultPageSize: 10,
+          },
         }}
       ></ProTable>
     </PageContainer>

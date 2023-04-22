@@ -5,7 +5,7 @@ export const setStorage = (key: string, value?: string) => {
   localStorage.setItem(`${REACT_APP_ENV}-${key}`, value || '');
 };
 
-export const getStorage = (key: string) => localStorage.getItem(`${REACT_APP_ENV}-${key}`);
+export const  getStorage = (key: string) => localStorage.getItem(`${REACT_APP_ENV}-${key}`);
 
 export const removeStorage = (key: string) => {
   localStorage.removeItem(`${REACT_APP_ENV}-${key}`);

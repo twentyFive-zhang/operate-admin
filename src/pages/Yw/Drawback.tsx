@@ -21,12 +21,13 @@ import {
   importDrawbackUsingPOST,
   deletedUsingDELETE9,
 } from '@/services/admin/yewumokuaituikuanguanli';
-import { Button, Modal, Space, message, Upload } from 'antd';
+import { Button, Modal, Space, message, Upload, Descriptions } from 'antd';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
 import { pageInfoUsingPOST4 } from '@/services/admin/xitongmokuaiduankouguanli';
 import { pageInfoUsingPOST6 } from '@/services/admin/xitongmokuaileixingguanli';
 import { pageInfoUsingPOST5 } from '@/services/admin/xitongmokuaiyewuyuanguanli';
 import { UseModalMultiple } from './Bookkeeping';
+import { useColumnsState } from '@/hooks';
 // import { SearchOutlined } from '@ant-design/icons';
 
 const ImportFile: React.FC<{ onCbk: () => void }> = ({ onCbk }) => {
@@ -157,7 +158,77 @@ const AccountListModal: React.FC<{
           actionRef,
           formRef,
           expandable: {
-            expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
+            rowExpandable: ({ deductionVo, drawbackVo }) => !!deductionVo || !!drawbackVo,
+            expandedRowRender: ({ deductionVo, drawbackVo }) => (
+              <Space {...{ direction: 'vertical' }} style={{ display: 'flex' }}>
+                {drawbackVo && (
+                  <ProDescriptions<API.DrawbackVo>
+                    {...{
+                      title: '退款详情',
+                      // style: { width: '100%' },
+                      bordered: true,
+                      column: 3,
+                      columns: [
+                        {
+                          title: '退款账户名称',
+                          dataIndex: 'accountName',
+                        },
+                        {
+                          title: '退款金额',
+                          dataIndex: 'drawbackAmount',
+                        },
+                        {
+                          title: '百度币',
+                          dataIndex: 'currency',
+                        },
+
+                        {
+                          title: '退款登记时间',
+                          dataIndex: 'createTime',
+                          valueType: 'date',
+                        },
+                        {
+                          title: '退款时间',
+                          dataIndex: 'drawbackTime',
+                          valueType: 'date',
+                        },
+                      ],
+                      request: async () => ({ data: drawbackVo, success: true }),
+                    }}
+                  ></ProDescriptions>
+                )}
+                {deductionVo && (
+                  <ProDescriptions<API.DeductionVo>
+                    {...{
+                      title: '抵扣详情',
+                      // style: { width: '100%' },
+                      bordered: true,
+                      column: 2,
+                      columns: [
+                        {
+                          title: '充值账户名称',
+                          dataIndex: 'accountName',
+                        },
+                        {
+                          title: '抵扣账户名称',
+                          dataIndex: 'deductionName',
+                        },
+                        {
+                          title: '抵扣金额',
+                          dataIndex: 'amount',
+                        },
+                        {
+                          title: '抵扣时间',
+                          dataIndex: 'deductionTime',
+                          valueType: 'date',
+                        },
+                      ],
+                      request: async () => ({ data: deductionVo, success: true }),
+                    }}
+                  ></ProDescriptions>
+                )}
+              </Space>
+            ),
           },
           rowKey: ({ typeId, accountId }) => `${typeId}-${accountId}`,
           columns: [
@@ -261,6 +332,7 @@ const AccountListModal: React.FC<{
           onRow: (record: API.AccountNameListVo) => {
             return {
               onClick: () => {
+                // console.log({ e });
                 if (record.typeId && record.accountId) {
                   const isExist = selectedRowKeys.includes(`${record.typeId}-${record.accountId}`);
                   setSelectedRows(isExist ? [] : [record]);
@@ -608,6 +680,7 @@ const Drawback: React.FC = () => {
       hideInDescriptions: true,
       //@ts-ignore
       fixed: 'right',
+      width: '240px',
       render: (_text, record, _i, action) => {
         return [
           <Button
@@ -723,6 +796,8 @@ const Drawback: React.FC = () => {
     actionRef,
   );
 
+  const { columnsState } = useColumnsState('drawerback-table');
+
   return (
     <PageContainer
       {...{
@@ -740,7 +815,11 @@ const Drawback: React.FC = () => {
       <DrawerBackModal></DrawerBackModal>
       <ProTable<API.DrawbackRespVO>
         {...{
-          scroll: { x: 2600 },
+          columnsState: columnsState,
+          pagination: {
+            defaultPageSize: 10,
+          },
+          scroll: { x: 2800 },
           rowKey: 'id',
           headerTitle: '退款列表',
           formRef: searchFormRef,

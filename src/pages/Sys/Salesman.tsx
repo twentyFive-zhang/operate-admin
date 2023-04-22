@@ -1,6 +1,6 @@
 import {
   pageInfoUsingPOST5,
-  deletedUsingDELETE5,
+  // deletedUsingDELETE5,
   addSysSalesmanUsingPOST,
   updateDeptUsingPUT3,
 } from '@/services/admin/xitongmokuaiyewuyuanguanli';
@@ -14,7 +14,7 @@ import {
   type ProFormColumnsType,
   type ProFormInstance,
 } from '@ant-design/pro-components';
-import { Button, message } from 'antd';
+import { Button, Switch, message } from 'antd';
 import { useRef, useState } from 'react';
 
 const Salesman: React.FC = () => {
@@ -26,12 +26,12 @@ const Salesman: React.FC = () => {
   };
   const actionRef = useRef<ActionType>();
 
-  const deleteSalesman = async (id: number) => {
-    await deletedUsingDELETE5({ id });
-    message.success('删除成功!');
-    actionRef.current?.clearSelected?.();
-    actionRef.current?.reload();
-  };
+  // const deleteSalesman = async (id: number) => {
+  //   await deletedUsingDELETE5({ id });
+  //   message.success('删除成功!');
+  //   actionRef.current?.clearSelected?.();
+  //   actionRef.current?.reload();
+  // };
 
   const formColumns: ProFormColumnsType<API.SalesmanUpdateReqVO>[] = [
     {
@@ -110,6 +110,22 @@ const Salesman: React.FC = () => {
           },
         ],
       },
+      render: (_dom, record) => {
+        return (
+          <Switch
+            {...{
+              checkedChildren: '启用',
+              unCheckedChildren: '禁用',
+              checked: !!record.status,
+              onClick: async () => {
+                await updateDeptUsingPUT3({ id: record.id, status: !record.status ? 1 : 0 });
+                message.success(`${!record.status ? '启用' : '禁用'}成功`);
+                actionRef.current?.reload();
+              },
+            }}
+          ></Switch>
+        );
+      },
       // valueEnum: {
       //   0: {
       //     text: '禁用',
@@ -135,19 +151,27 @@ const Salesman: React.FC = () => {
         >
           编辑
         </Button>,
-        <Button
-          key="delete"
-          {...{
-            type: 'primary',
-            danger: true,
-            onClick: () => {
-              const { id } = record;
-              if (id) deleteSalesman(id);
-            },
-          }}
-        >
-          删除
-        </Button>,
+        // record.status === 1 && (
+        //   <Button key="start" {...{ type: 'primary', onClick: async () => {
+
+        //   } }}>
+        //     启用
+        //   </Button>
+        // ),
+        // record.status === 0 && <Button key="end">禁用</Button>,
+        // <Button
+        //   key="delete"
+        //   {...{
+        //     type: 'primary',
+        //     danger: true,
+        //     onClick: () => {
+        //       const { id } = record;
+        //       if (id) deleteSalesman(id);
+        //     },
+        //   }}
+        // >
+        //   删除
+        // </Button>,
       ],
     },
   ];
@@ -201,7 +225,9 @@ const Salesman: React.FC = () => {
           ],
           rowSelection: false,
           bordered: true,
-          pagination: {},
+          pagination: {
+            defaultPageSize: 10,
+          },
           search: {},
         }}
       ></ProTable>

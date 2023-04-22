@@ -247,7 +247,9 @@ const Role: React.FC = () => {
           ],
           rowSelection: false,
           bordered: true,
-          pagination: {},
+          pagination: {
+            defaultPageSize: 10,
+          },
           search: {},
         }}
       ></ProTable>

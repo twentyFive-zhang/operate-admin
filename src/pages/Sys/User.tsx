@@ -123,6 +123,7 @@ const UserModal: React.FC<{
 
   const onFinish = async (values: API.UserUpdateReqVO) => {
     const ajaxFun = values.id ? updateUserInfoUsingPUT : addUserUsingPOST;
+    // @ts-ignore
     await ajaxFun(values);
     message.success(`${values.id ? '编辑' : '新增'}用户成功`);
     onOpenChange(false, true);
@@ -453,6 +454,9 @@ const User: React.FC = () => {
           ],
           rowSelection: {},
           bordered: true,
+          pagination: {
+            defaultPageSize: 10,
+          },
         }}
       ></ProTable>
     </PageContainer>

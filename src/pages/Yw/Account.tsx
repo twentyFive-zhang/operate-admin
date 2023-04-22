@@ -299,6 +299,9 @@ const Account: React.FC = () => {
       <ProTable<API.AccountRespVO>
         {...{
           actionRef,
+          pagination: {
+            defaultPageSize: 10,
+          },
           headerTitle: '开户管理',
           // search: false,
           columns: columns as ProColumns<API.AccountRespVO>[],

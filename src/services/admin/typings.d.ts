@@ -42,8 +42,10 @@ declare namespace API {
     currency?: number;
     /** 是否有抵扣(0否,1是) */
     deductionStatus?: number;
+    deductionVo?: DeductionVo;
     /** 是否有退款(0否,1是) */
     drawbackStatus?: number;
+    drawbackVo?: DrawbackVo;
     /** 拿到点位 */
     getPoint?: number;
     /** 端口id */
@@ -815,6 +817,8 @@ declare namespace API {
     accountId?: number;
     /** 抵扣账户名称 */
     accountName?: string;
+    /** 抵扣金额 */
+    amount?: number;
   };
 
   type DeductionRespVo = {
@@ -824,6 +828,17 @@ declare namespace API {
     accountName?: string;
     /** 抵扣账户存在提醒 */
     msg?: string;
+  };
+
+  type DeductionVo = {
+    /** 充值账户名称 */
+    accountName?: string;
+    /** 抵扣金额 */
+    amount?: number;
+    /** 抵扣账户名称 */
+    deductionName?: string;
+    /** 抵扣时间 */
+    deductionTime?: string;
   };
 
   type deletedUserUsingDELETEParams = {
@@ -1178,6 +1193,17 @@ declare namespace API {
     remarks?: string;
     /** 类型ID */
     typeId?: number;
+  };
+
+  type DrawbackVo = {
+    /** 账户名称 */
+    accountName?: string;
+    /** 退款登记日期 */
+    createTime?: string;
+    /** 退款金额 */
+    drawbackAmount?: number;
+    /** 退款日期 */
+    drawbackTime?: string;
   };
 
   type File = {
