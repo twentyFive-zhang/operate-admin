@@ -1,3 +1,4 @@
+import PopButton from '@/components/Common/PopButton';
 import {
   deletedUsingDELETE1,
   addPermissionUsingPOST,
@@ -51,12 +52,12 @@ const Permission: React.FC = () => {
   };
   const actionRef = useRef<ActionType>();
 
-  const deletePermission = async (id: string) => {
-    await deletedUsingDELETE1({ id });
-    message.success('删除成功!');
-    actionRef.current?.clearSelected?.();
-    actionRef.current?.reload();
-  };
+  // const deletePermission = async (id: string) => {
+  //   await deletedUsingDELETE1({ id });
+  //   message.success('删除成功!');
+  //   actionRef.current?.clearSelected?.();
+  //   actionRef.current?.reload();
+  // };
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalData, setModalData] = useState<{ type: 'add' | 'update'; title: string }>({
@@ -262,7 +263,7 @@ const Permission: React.FC = () => {
         // width: 160,
         fixed: 'right',
         //@ts-ignore
-        render: (_text, record) => [
+        render: (_text, record, _index, action) => [
           <Button
             key="update"
             {...{
@@ -274,19 +275,31 @@ const Permission: React.FC = () => {
           >
             编辑
           </Button>,
-          <Button
+          <PopButton<API.SysPermission>
             key="delete"
             {...{
-              type: 'primary',
-              danger: true,
-              onClick: () => {
-                const { id } = record;
-                if (id) deletePermission(id);
+              data: record,
+              rowKey: 'id',
+              request: deletedUsingDELETE1,
+              onSuccess: () => {
+                action?.clearSelected?.();
+                action?.reload();
               },
             }}
-          >
-            删除
-          </Button>,
+          ></PopButton>,
+          // <Button
+          //   key="delete"
+          //   {...{
+          //     type: 'primary',
+          //     danger: true,
+          //     onClick: () => {
+          //       const { id } = record;
+          //       if (id) deletePermission(id);
+          //     },
+          //   }}
+          // >
+          //   删除
+          // </Button>,
         ],
       },
     ].filter((item) => !!item);

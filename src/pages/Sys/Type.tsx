@@ -1,3 +1,4 @@
+import PopButton from '@/components/Common/PopButton';
 import {
   pageInfoUsingPOST6,
   deletedUsingDELETE6,
@@ -26,12 +27,12 @@ const Type: React.FC = () => {
   };
   const actionRef = useRef<ActionType>();
 
-  const deleteType = async (id: number) => {
-    await deletedUsingDELETE6({ id });
-    message.success('删除成功!');
-    actionRef.current?.clearSelected?.();
-    actionRef.current?.reload();
-  };
+  // const deleteType = async (id: number) => {
+  //   await deletedUsingDELETE6({ id });
+  //   message.success('删除成功!');
+  //   actionRef.current?.clearSelected?.();
+  //   actionRef.current?.reload();
+  // };
 
   const formColumns: ProFormColumnsType<API.TypeUpdateReqVO>[] = [
     {
@@ -90,7 +91,7 @@ const Type: React.FC = () => {
       title: '操作',
       valueType: 'option',
       dataIndex: 'option',
-      render: (_text, record) => [
+      render: (_text, record, _index, action) => [
         <Button
           key="update"
           {...{
@@ -102,19 +103,30 @@ const Type: React.FC = () => {
         >
           编辑
         </Button>,
-        <Button
+        <PopButton<API.SysType>
           key="delete"
           {...{
-            type: 'primary',
-            danger: true,
-            onClick: () => {
-              const { id } = record;
-              if (id) deleteType(id);
+            data: record,
+            rowKey: 'id',
+            request: deletedUsingDELETE6,
+            onSuccess: () => {
+              action?.reload();
             },
           }}
-        >
-          删除
-        </Button>,
+        ></PopButton>,
+        // <Button
+        //   key="delete"
+        //   {...{
+        //     type: 'primary',
+        //     danger: true,
+        //     onClick: () => {
+        //       const { id } = record;
+        //       if (id) deleteType(id);
+        //     },
+        //   }}
+        // >
+        //   删除
+        // </Button>,
       ],
     },
   ];

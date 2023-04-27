@@ -16,7 +16,7 @@ const DeptEdit: React.FC = () => {
       dataIndex: 'name',
     },
     {
-      title: '所属部门',
+      title: '所属公司',
       dataIndex: 'pid',
       valueType: 'treeSelect',
       request: async () => {

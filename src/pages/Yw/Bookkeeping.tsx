@@ -31,6 +31,7 @@ import { pageInfoUsingPOST6 } from '@/services/admin/xitongmokuaileixingguanli';
 import { pageInfoUsingPOST4 } from '@/services/admin/xitongmokuaiduankouguanli';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
 import { useColumnsState } from '@/hooks';
+import PopButton from '@/components/Common/PopButton';
 
 /** 批量回款 */
 
@@ -95,8 +96,10 @@ export const UseModalMultiple = <T extends object>(
                     summary: () => (
                       <Table.Summary>
                         <Table.Summary.Row>
-                          <Table.Summary.Cell index={0}>总回款金额</Table.Summary.Cell>
-                          <Table.Summary.Cell index={1} colSpan={2}>
+                          <Table.Summary.Cell index={0} colSpan={3}>
+                            总回款金额
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={1}>
                             {/* @ts-ignore */}
                             {parseFloat(
                               // @ts-ignore
@@ -116,14 +119,22 @@ export const UseModalMultiple = <T extends object>(
                         title: '账号名称',
                         dataIndex: 'accountName',
                       },
-
                       {
-                        title: '回款金额',
-                        dataIndex: 'collectionAmount',
+                        title: '百度币',
+                        dataIndex: 'currency',
                       },
+
                       {
                         title: '渠道点位',
                         dataIndex: 'canalPoint',
+                        valueType: 'digit',
+                        fieldProps: {
+                          precision: 2,
+                        },
+                      },
+                      {
+                        title: '回款金额',
+                        dataIndex: 'collectionAmount',
                       },
                     ],
                   }}
@@ -159,7 +170,7 @@ export const UseModalMultiple = <T extends object>(
     return (
       <BetaSchemaForm
         {...{
-          title: '批量退款',
+          title: `批量退款-【${list?.[0]?.salesmanName}】`,
           layoutType: 'ModalForm',
           open: open && type === 'drawerBack',
           onOpenChange: (status) => {
@@ -181,24 +192,35 @@ export const UseModalMultiple = <T extends object>(
                     summary: () => (
                       <Table.Summary>
                         <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={2}>
+                          <Table.Summary.Cell index={0} colSpan={3}>
                             总退款金额
                           </Table.Summary.Cell>
                           <Table.Summary.Cell index={1}>
                             {/* @ts-ignore */}
-                            {list?.reduce((all, item) => (item.drawbackAmount || 0) + all, 0) || 0}
+                            {parseFloat(
+                              // @ts-ignore
+                              list?.reduce((all, item) => (item.drawbackAmount || 0) + all, 0) || 0,
+                            ).toFixed(2)}
                           </Table.Summary.Cell>
                         </Table.Summary.Row>
                       </Table.Summary>
                     ),
                     columns: [
-                      {
-                        title: '单号',
-                        dataIndex: 'drawbackNumber',
-                      },
+                      // {
+                      //   title: '退款单号',
+                      //   dataIndex: 'drawbackNumber',
+                      // },
                       {
                         title: '账号名称',
                         dataIndex: 'accountName',
+                      },
+                      {
+                        title: '百度币',
+                        dataIndex: 'currency',
+                      },
+                      {
+                        title: '渠道点位',
+                        dataIndex: 'canalPoint',
                       },
 
                       {
@@ -218,10 +240,11 @@ export const UseModalMultiple = <T extends object>(
                 options: [
                   { label: '未退款', value: 0 },
                   { label: '已退款', value: 1 },
+                  { label: '不退款', value: 2 },
                 ],
               },
               formItemProps: {
-                rules: [{ required: true, message: '请选择是否退款' }],
+                rules: [{ required: true, message: '请选择' }],
               },
             },
           ],
@@ -359,9 +382,10 @@ const Bookkeeping: React.FC = () => {
     (ProSchema<API.BookkeepUpdateReqVO> & ProFormColumnsType<API.BookkeepUpdateReqVO>)[]
   >([
     {
-      title: '单号',
+      title: '充值单号',
       dataIndex: 'rechargeNumber',
       hideInForm: true,
+      width: '160px',
     },
     {
       title: '类型',
@@ -389,6 +413,7 @@ const Bookkeeping: React.FC = () => {
       title: '账户名称',
       dataIndex: 'accountName',
       hideInForm: true,
+      width: '160px',
     },
     {
       title: '账户名称',
@@ -397,15 +422,30 @@ const Bookkeeping: React.FC = () => {
       hideInSearch: true,
       hideInDescriptions: true,
       valueType: 'select',
+      // transform: ({ id }) => ({ accountId: id }),
+      request: async ({ keyWords }) => {
+        console.log({ keyWords });
+        if (!keyWords) return [];
+        const {
+          data: { list },
+        } = await pageInfoUsingPOST8({
+          accountName: keyWords,
+          pageNum: 1,
+          pageSize: 100000,
+        });
+        return list;
+      },
       formItemProps: {
         rules: [{ required: true, message: '请选择账户' }],
       },
       fieldProps: {
         showSearch: true,
-        options: [],
+        // options: [],
+        labelInValue: true,
+
         fieldNames: {
           label: 'accountName',
-          value: 'id',
+          // value: 'id',
         },
         onClear: () => {
           // console.log('clear');
@@ -417,10 +457,20 @@ const Bookkeeping: React.FC = () => {
       title: '端口',
       dataIndex: 'portName',
       hideInSearch: true,
+      // hideInForm: true,
+      hideInTable: true,
       fieldProps: {
         disabled: true,
       },
       // dependencies: ['accountId'],
+    },
+    {
+      title: '端口',
+      dataIndex: 'portName',
+      hideInSearch: true,
+      hideInForm: true,
+      hideInDescriptions: true,
+      render: (_dom, { portName, portNumber }) => `${portName}-${portNumber}`,
     },
 
     {
@@ -458,7 +508,7 @@ const Bookkeeping: React.FC = () => {
       hideInTable: true,
       valueType: 'select',
       hideInDescriptions: true,
-      colProps: { span: 12 },
+      // colProps: { span: 12 },
       formItemProps: {
         rules: [{ required: true, message: '请选择类型' }],
       },
@@ -508,6 +558,10 @@ const Bookkeeping: React.FC = () => {
       title: '渠道点位',
       dataIndex: 'canalPoint',
       hideInSearch: true,
+      valueType: 'digit',
+      fieldProps: {
+        precision: 2,
+      },
     },
     {
       title: '回款金额',
@@ -518,7 +572,7 @@ const Bookkeeping: React.FC = () => {
     {
       title: '回款',
       dataIndex: 'collection',
-      hideInSearch: true,
+      // hideInSearch: true,
     },
     {
       title: '回款状态',
@@ -715,7 +769,7 @@ const Bookkeeping: React.FC = () => {
       hideInSearch: true,
       hideInTable: true,
       hideInForm: true,
-      render: (v) => <>{v?.map((item) => item.accountName).join(',')}</>,
+      render: (v, { list }) => <>{list?.map((item) => item.accountName).join(',')}</>,
     },
     {
       title: '抵扣账户列表',
@@ -904,6 +958,8 @@ const Bookkeeping: React.FC = () => {
               onClick: () => {
                 triggerToOpenModal('update', record);
               },
+              // @ts-ignore
+              disabled: record.collectionStatus === 1,
             }}
           >
             编辑
@@ -919,24 +975,36 @@ const Bookkeeping: React.FC = () => {
           >
             详情
           </Button>,
-
-          <Button
+          <PopButton<API.BookkeepUpdateReqVO>
             key="delete"
             {...{
-              type: 'primary',
-              danger: true,
-              onClick: async () => {
-                if (!record.id) return;
-                try {
-                  await deletedUsingDELETE8({ id: record.id });
-                  message.success('删除成功');
-                  action?.reload();
-                } catch {}
+              data: record,
+              rowKey: 'id',
+              request: deletedUsingDELETE8,
+              onSuccess: () => {
+                action?.clearSelected?.();
+                action?.reload();
               },
             }}
-          >
-            删除
-          </Button>,
+          ></PopButton>,
+
+          // <Button
+          //   key="delete"
+          //   {...{
+          //     type: 'primary',
+          //     danger: true,
+          //     onClick: async () => {
+          //       if (!record.id) return;
+          //       try {
+          //         await deletedUsingDELETE8({ id: record.id });
+          //         message.success('删除成功');
+          //         action?.reload();
+          //       } catch {}
+          //     },
+          //   }}
+          // >
+          //   删除
+          // </Button>,
         ];
       },
     },
@@ -948,16 +1016,17 @@ const Bookkeeping: React.FC = () => {
     setLoading(true);
     try {
       const list = await Promise.all([
-        pageInfoUsingPOST8({ pageNum: 1, pageSize: 100000 }),
+        // pageInfoUsingPOST8({ pageNum: 1, pageSize: 100000, accountName: '123' }),
+
         pageInfoUsingPOST4({ pageNum: 1, pageSize: 100000 }),
         pageInfoUsingPOST6({ pageNum: 1, pageSize: 100000 }),
         pageInfoUsingPOST5({ pageNum: 1, pageSize: 100000 }),
       ]);
       // 所以我不喜欢数组
-      const keyList = ['accountId', 'portId', 'typeId', 'salesmanId'];
+      const keyList = ['portId', 'typeId', 'salesmanId'];
       setOptionJson({
-        accountId: list[0]?.data?.list || [],
-        typeId: list[2]?.data?.list || [],
+        // accountId: list[0]?.data?.list || [],
+        typeId: list[1]?.data?.list || [],
       });
       // console.log({ optionJson });
       const getList = (list: any[], key: string) => {
@@ -1009,11 +1078,13 @@ const Bookkeeping: React.FC = () => {
       });
     }
     if (key === 'accountId') {
-      const { accountId: list = [] } = optionJson;
-      const { portName, salesmanName, trade, getPoint } =
-        // @ts-ignore
-        list.find((item) => item.id === value) || {};
-      console.log({ portName, salesmanName, optionJson });
+      // TODO:
+      const { portName, salesmanName, trade, getPoint } = value as API.AccountRespVO;
+      // const { accountId: list = [] } = optionJson;
+      // const { portName, salesmanName, trade, getPoint } =
+      //   // @ts-ignore
+      //   list.find((item) => item.id === value) || {};
+      // console.log({ portName, salesmanName, optionJson });
       formRef.current?.setFieldsValue({ portName, salesmanName, trade, getPoint });
     }
     // console.log({ key, value, changedValues });
@@ -1022,7 +1093,10 @@ const Bookkeeping: React.FC = () => {
   const onFinish = async (values: API.BookkeepUpdateReqVO) => {
     const { type, record = {}, title } = chosenData || {};
     const ajaxFun = type === 'add' ? addUsingPOST : updateUsingPUT;
-    await ajaxFun({ ...record, ...values });
+    // if (typeof values.accountId === 'object') {
+    // }
+    // @ts-ignore
+    await ajaxFun({ ...record, ...values, accountId: values.accountId?.id || values.accountId });
     message.success(`${title}成功`);
     setOpen(false);
     actionRef.current?.reload();
@@ -1118,7 +1192,13 @@ const Bookkeeping: React.FC = () => {
       ></ProTable>
       <BetaSchemaForm<API.BookkeepUpdateReqVO>
         {...{
-          modalProps: { width: '80%' },
+          modalProps: {
+            width: '80%',
+            bodyStyle: {
+              height: '60vh',
+              overflow: 'scroll',
+            },
+          },
           layout: 'vertical',
           grid: true,
           rowProps: { gutter: 20 },

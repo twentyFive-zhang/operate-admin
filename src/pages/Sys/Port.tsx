@@ -16,6 +16,7 @@ import {
 } from '@ant-design/pro-components';
 import { Button, message } from 'antd';
 import { useRef, useState } from 'react';
+import PopButton from '@/components/Common/PopButton';
 
 const Port: React.FC = () => {
   const request = async (params: API.PortPageReqVO & { current?: number }) => {
@@ -26,12 +27,12 @@ const Port: React.FC = () => {
   };
   const actionRef = useRef<ActionType>();
 
-  const deletePort = async (id: number) => {
-    await deletedUsingDELETE4({ id });
-    message.success('删除成功!');
-    actionRef.current?.clearSelected?.();
-    actionRef.current?.reload();
-  };
+  // const deletePort = async (id: number) => {
+  //   await deletedUsingDELETE4({ id });
+  //   message.success('删除成功!');
+  //   actionRef.current?.clearSelected?.();
+  //   actionRef.current?.reload();
+  // };
 
   const formColumns: ProFormColumnsType<API.PortUpdateReqVO>[] = [
     {
@@ -109,7 +110,7 @@ const Port: React.FC = () => {
       title: '操作',
       valueType: 'option',
       dataIndex: 'option',
-      render: (_text, record) => [
+      render: (_text, record, _index, action) => [
         <Button
           key="update"
           {...{
@@ -121,19 +122,30 @@ const Port: React.FC = () => {
         >
           编辑
         </Button>,
-        <Button
+        <PopButton<API.SysPort>
           key="delete"
           {...{
-            type: 'primary',
-            danger: true,
-            onClick: () => {
-              const { id } = record;
-              if (id) deletePort(id);
+            data: record,
+            rowKey: 'id',
+            request: deletedUsingDELETE4,
+            onSuccess: () => {
+              action?.reload();
             },
           }}
-        >
-          删除
-        </Button>,
+        ></PopButton>,
+        // <Button
+        //   key="delete"
+        //   {...{
+        //     type: 'primary',
+        //     danger: true,
+        //     onClick: () => {
+        //       const { id } = record;
+        //       if (id) deletePort(id);
+        //     },
+        //   }}
+        // >
+        //   删除
+        // </Button>,
       ],
     },
   ];

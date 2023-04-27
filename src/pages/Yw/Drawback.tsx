@@ -28,6 +28,7 @@ import { pageInfoUsingPOST6 } from '@/services/admin/xitongmokuaileixingguanli';
 import { pageInfoUsingPOST5 } from '@/services/admin/xitongmokuaiyewuyuanguanli';
 import { UseModalMultiple } from './Bookkeeping';
 import { useColumnsState } from '@/hooks';
+import PopButton from '@/components/Common/PopButton';
 // import { SearchOutlined } from '@ant-design/icons';
 
 const ImportFile: React.FC<{ onCbk: () => void }> = ({ onCbk }) => {
@@ -168,6 +169,7 @@ const AccountListModal: React.FC<{
                       // style: { width: '100%' },
                       bordered: true,
                       column: 3,
+                      layout: 'vertical',
                       columns: [
                         {
                           title: '退款账户名称',
@@ -203,7 +205,8 @@ const AccountListModal: React.FC<{
                       title: '抵扣详情',
                       // style: { width: '100%' },
                       bordered: true,
-                      column: 2,
+                      column: 4,
+                      layout: 'vertical',
                       columns: [
                         {
                           title: '充值账户名称',
@@ -212,6 +215,8 @@ const AccountListModal: React.FC<{
                         {
                           title: '抵扣账户名称',
                           dataIndex: 'deductionName',
+                          labelStyle: { color: 'red' },
+                          contentStyle: { color: 'red' },
                         },
                         {
                           title: '抵扣金额',
@@ -243,6 +248,10 @@ const AccountListModal: React.FC<{
               title: '渠道点位',
               dataIndex: 'canalPoint',
               hideInSearch: true,
+              valueType: 'digit',
+              fieldProps: {
+                precision: 2,
+              },
             },
             {
               title: '百度币',
@@ -253,6 +262,10 @@ const AccountListModal: React.FC<{
               title: '拿到点位',
               dataIndex: 'getPoint',
               hideInSearch: true,
+              valueType: 'digit',
+              fieldProps: {
+                precision: 2,
+              },
             },
             {
               title: '是否抵扣',
@@ -410,11 +423,13 @@ const Drawback: React.FC = () => {
       title: '退款单号',
       dataIndex: 'drawbackNumber',
       hideInForm: true,
+      width: '160px',
     },
     {
       title: '账户名称',
       dataIndex: 'accountName',
       hideInForm: true,
+      width: '160px',
     },
     {
       title: '账户ID',
@@ -469,6 +484,7 @@ const Drawback: React.FC = () => {
         options: [
           { label: '未退款', value: 0 },
           { label: '已退款', value: 1 },
+          { label: '不退款', value: 2 },
         ],
       },
     },
@@ -529,9 +545,19 @@ const Drawback: React.FC = () => {
       title: '端口',
       dataIndex: 'portName',
       hideInSearch: true,
+      hideInTable: true,
       fieldProps: {
         disabled: true,
       },
+    },
+
+    {
+      title: '端口',
+      dataIndex: 'portName',
+      hideInSearch: true,
+      hideInForm: true,
+      hideInDescriptions: true,
+      render: (_dom, { portName, portNumber }) => `${portName}-${portNumber}`,
     },
     {
       title: '是否重复退款',
@@ -626,8 +652,20 @@ const Drawback: React.FC = () => {
       title: '拿到点位',
       dataIndex: 'getPoint',
       hideInSearch: true,
+      valueType: 'digit',
+      fieldProps: {
+        precision: 2,
+      },
     },
-    { title: '渠道点位', dataIndex: 'canalPoint', hideInSearch: true },
+    {
+      title: '渠道点位',
+      dataIndex: 'canalPoint',
+      hideInSearch: true,
+      valueType: 'digit',
+      fieldProps: {
+        precision: 2,
+      },
+    },
     {
       title: '退款金额',
       dataIndex: 'drawbackAmount',
@@ -690,6 +728,7 @@ const Drawback: React.FC = () => {
               onClick: () => {
                 triggerToOpenModal('update', record);
               },
+              disabled: record.drawbackStatus === 1,
             }}
           >
             编辑
@@ -705,23 +744,36 @@ const Drawback: React.FC = () => {
           >
             详情
           </Button>,
-          <Button
+
+          <PopButton<API.DrawbackRespVO>
             key="delete"
             {...{
-              type: 'primary',
-              danger: true,
-              onClick: async () => {
-                if (!record.id) return;
-                try {
-                  await deletedUsingDELETE9({ id: record.id });
-                  message.success('删除成功');
-                  action?.reload();
-                } catch {}
+              data: record,
+              rowKey: 'id',
+              request: deletedUsingDELETE9,
+              onSuccess: () => {
+                action?.clearSelected?.();
+                action?.reload();
               },
             }}
-          >
-            删除
-          </Button>,
+          ></PopButton>,
+          // <Button
+          //   key="delete"
+          //   {...{
+          //     type: 'primary',
+          //     danger: true,
+          //     onClick: async () => {
+          //       if (!record.id) return;
+          //       try {
+          //         await deletedUsingDELETE9({ id: record.id });
+          //         message.success('删除成功');
+          //         action?.reload();
+          //       } catch {}
+          //     },
+          //   }}
+          // >
+          //   删除
+          // </Button>,
         ];
       },
     },
@@ -892,7 +944,10 @@ const Drawback: React.FC = () => {
       ></ProTable>
       <BetaSchemaForm<API.DrawbackUpdateReqVO>
         {...{
-          modalProps: { width: '80%' },
+          modalProps: {
+            width: '80%',
+            bodyStyle: {},
+          },
           layout: chosenData?.type === 'detail' ? 'horizontal' : 'vertical',
           grid: true,
           rowProps: { gutter: 20 },

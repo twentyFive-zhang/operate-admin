@@ -20,6 +20,7 @@ import {
 } from '@ant-design/pro-components';
 import { Button, Tree, message } from 'antd';
 import { useRef, useState } from 'react';
+import PopButton from '@/components/Common/PopButton';
 
 // function flatten {
 //   return;
@@ -45,12 +46,12 @@ const Role: React.FC = () => {
   };
   const actionRef = useRef<ActionType>();
 
-  const deleteRole = async (id: string) => {
-    await deletedUsingDELETE2({ id });
-    message.success('删除成功!');
-    actionRef.current?.clearSelected?.();
-    actionRef.current?.reload();
-  };
+  // const deleteRole = async (id: string) => {
+  //   await deletedUsingDELETE2({ id });
+  //   message.success('删除成功!');
+  //   actionRef.current?.clearSelected?.();
+  //   actionRef.current?.reload();
+  // };
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalData, setModalData] = useState<{ type: 'add' | 'update' | 'bind'; title: string }>({
@@ -162,7 +163,7 @@ const Role: React.FC = () => {
       title: '操作',
       valueType: 'option',
       dataIndex: 'option',
-      render: (_text, record) => [
+      render: (_text, record, _index, action) => [
         <Button
           key="update"
           {...{
@@ -184,19 +185,30 @@ const Role: React.FC = () => {
         >
           绑定菜单
         </Button>,
-        <Button
+        // <Button
+        //   key="delete"
+        //   {...{
+        //     type: 'primary',
+        //     danger: true,
+        //     onClick: () => {
+        //       const { id } = record;
+        //       if (id) deleteRole(id);
+        //     },
+        //   }}
+        // >
+        //   删除
+        // </Button>,
+        <PopButton<API.SysRole>
           key="delete"
           {...{
-            type: 'primary',
-            danger: true,
-            onClick: () => {
-              const { id } = record;
-              if (id) deleteRole(id);
+            data: record,
+            rowKey: 'id',
+            request: deletedUsingDELETE2,
+            onSuccess: () => {
+              action?.reload();
             },
           }}
-        >
-          删除
-        </Button>,
+        ></PopButton>,
       ],
     },
   ];

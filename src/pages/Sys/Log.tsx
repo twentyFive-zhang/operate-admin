@@ -1,3 +1,4 @@
+import PopButton from '@/components/Common/PopButton';
 import {
   pageInfoUsingPOST3,
   deletedUsingDELETE3,
@@ -8,7 +9,6 @@ import {
   type ProColumns,
   type ActionType,
 } from '@ant-design/pro-components';
-import { Button, message } from 'antd';
 import { useRef } from 'react';
 
 const Log: React.FC = () => {
@@ -20,12 +20,12 @@ const Log: React.FC = () => {
   };
   const actionRef = useRef<ActionType>();
 
-  const deleteLogs = async (ids: string[]) => {
-    await deletedUsingDELETE3(ids);
-    message.success('删除成功!');
-    actionRef.current?.clearSelected?.();
-    actionRef.current?.reload();
-  };
+  // const deleteLogs = async (ids: string[]) => {
+  //   await deletedUsingDELETE3(ids);
+  //   message.success('删除成功!');
+  //   actionRef.current?.clearSelected?.();
+  //   actionRef.current?.reload();
+  // };
 
   const columns: ProColumns<API.SysLog>[] = [
     // {
@@ -68,19 +68,32 @@ const Log: React.FC = () => {
       valueType: 'option',
       dataIndex: 'option',
       fixed: 'right',
-      render: (text, { id }) => [
-        <Button
+      render: (_text, record, _index, action) => [
+        // <Button
+        //   key="delete"
+        //   {...{
+        //     type: 'primary',
+        //     danger: true,
+        //     onClick: () => {
+        //       if (id) deleteLogs([id]);
+        //     },
+        //   }}
+        // >
+        //   删除
+        // </Button>,
+        <PopButton<API.SysLog>
           key="delete"
           {...{
-            type: 'primary',
-            danger: true,
-            onClick: () => {
-              if (id) deleteLogs([id]);
+            data: record,
+            rowKey: 'id',
+            request: deletedUsingDELETE3,
+            sortParams: (p) => [(p as API.SysLog)['id']],
+            onSuccess: () => {
+              action?.clearSelected?.();
+              action?.reload();
             },
           }}
-        >
-          删除
-        </Button>,
+        ></PopButton>,
       ],
     },
   ];
@@ -106,20 +119,20 @@ const Log: React.FC = () => {
           columns,
           request,
           rowKey: 'id',
-          toolBarRender: (action, { selectedRowKeys }) => [
-            <Button
+          toolBarRender: (action, { selectedRows }) => [
+            <PopButton<API.SysLog, 'multiple'>
               key="delete"
               {...{
-                type: 'primary',
-                danger: true,
-                disabled: !selectedRowKeys?.length,
-                onClick: () => {
-                  deleteLogs(selectedRowKeys as string[]);
+                data: selectedRows || [],
+                mode: 'multiple',
+                rowKey: 'id',
+                request: deletedUsingDELETE3,
+                onSuccess: () => {
+                  action?.clearSelected?.();
+                  action?.reload();
                 },
               }}
-            >
-              批量删除
-            </Button>,
+            ></PopButton>,
           ],
           rowSelection: {},
           bordered: true,

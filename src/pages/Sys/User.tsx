@@ -86,7 +86,7 @@ const UserModal: React.FC<{
       },
     },
     {
-      title: '所属部门',
+      title: '所属公司',
       dataIndex: 'deptId',
       valueType: 'treeSelect',
       request: async () => {
@@ -109,6 +109,7 @@ const UserModal: React.FC<{
         },
       },
     },
+
     {
       title: '状态',
       dataIndex: 'status',
@@ -162,7 +163,7 @@ const UserRoleModal: React.FC<{
       const { data } = await getUserOwnRoleUsingGET({ userId });
       formRef.current?.resetFields();
       formRef.current?.setFieldsValue({ ids: data?.ownRoles || [] });
-      setOptions(data?.allRole || []);
+      setOptions((data?.allRole || []).map((item) => ({ ...item, disabled: item.status === 0 })));
     }
   };
 
@@ -283,13 +284,23 @@ const User: React.FC = () => {
       dataIndex: 'sex',
       hideInSearch: true,
       //1.男 2.女
-      valueEnum: {
-        1: {
-          text: '男',
-        },
-        2: {
-          text: '女',
-        },
+      // valueEnum: {
+      //   1: {
+      //     text: '男',
+      //   },
+      //   2: {
+      //     text: '女',
+      //   },
+      // },
+      valueType: 'select',
+      fieldProps: {
+        options: [
+          { label: '男', value: 1 },
+          {
+            label: '女',
+            value: 2,
+          },
+        ],
       },
     },
     {
@@ -316,17 +327,29 @@ const User: React.FC = () => {
       valueType: 'dateTime',
       hideInSearch: true,
     },
+    // {
+    //   title: '状态',
+    //   dataIndex: 'status',
+    //   //1.正常 2.锁定
+    //   valueEnum: {
+    //     1: {
+    //       text: '启用',
+    //     },
+    //     2: {
+    //       text: '禁用',
+    //     },
+    //   },
+    // },
     {
       title: '状态',
       dataIndex: 'status',
-      //1.正常 2.锁定
-      valueEnum: {
-        1: {
-          text: '启用',
-        },
-        2: {
-          text: '禁用',
-        },
+      valueType: 'select',
+      // hideInForm: true,
+      fieldProps: {
+        options: [
+          { value: 1, label: '启用' },
+          { value: 0, label: '禁用' },
+        ],
       },
     },
     {

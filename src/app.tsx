@@ -10,6 +10,7 @@ import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDrop
 import { Button, Dropdown, Spin } from 'antd';
 import { getHomeInfoUsingGET } from './services/admin/shouyeshuju';
 import type { MenuDataItem } from '@ant-design/pro-components';
+import avatarPng from '@/assets/avart.png';
 // type MenuDataItem = ProLayoutProps['MenuDataItem'];
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -75,8 +76,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState, loa
   // console.log({ loading }, initialState?.menus);
   return {
     actionsRender: () => [
-      <div key="dept" {...{ style: { fontSize: '14px' } }}>
-        <span {...{ style: { color: '#333', fontWeight: 500 } }}>所属机构:</span>
+      <div
+        key="dept"
+        {...{ style: { fontSize: '14px', lineHeight: '24px', marginRight: '10px', padding: 0 } }}
+      >
+        <span {...{ style: { color: '#333', fontWeight: 500 } }}>所属公司:</span>
         {initialState?.currentUser?.deptName}
       </div>,
       <Dropdown
@@ -113,7 +117,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState, loa
       </Dropdown>,
     ],
     avatarProps: {
-      // src: initialState?.currentUser?.avatar,
+      src: avatarPng,
       // icon: <ContactsTwoTone />,
       title: <AvatarName />,
       render: (_, avatarChildren) => {

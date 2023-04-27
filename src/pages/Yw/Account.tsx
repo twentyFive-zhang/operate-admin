@@ -105,18 +105,38 @@ const Account: React.FC = () => {
       },
     },
     {
-      title: '端口名称',
+      title: '端口',
       dataIndex: 'portName',
       hideInSearch: true,
       hideInForm: true,
       hideInDescriptions: true,
+      render: (_dom, { portName, portNumber }) => `${portName}-${portNumber}`,
     },
+    // {
+    //   title: '端口编号',
+    //   dataIndex: 'portNumber',
+    //   hideInSearch: true,
+    //   hideInForm: true,
+    //   hideInDescriptions: true,
+    // },
     {
-      title: '端口编号',
-      dataIndex: 'portNumber',
-      hideInSearch: true,
+      title: '业务员',
+      dataIndex: 'salesmanId',
+      valueType: 'select',
+      formItemProps: {
+        rules: [{ required: true, message: '请选择业务员' }],
+      },
+      fieldProps: {
+        options: [],
+        showSearch: true,
+
+        fieldNames: {
+          label: 'salesmanName',
+          value: 'id',
+        },
+      },
+      hideInTable: true,
       hideInForm: true,
-      hideInDescriptions: true,
     },
     {
       title: '业务员',
@@ -135,6 +155,7 @@ const Account: React.FC = () => {
         },
       },
       hideInTable: true,
+      hideInSearch: true,
     },
     {
       title: '业务员名称',
@@ -158,6 +179,8 @@ const Account: React.FC = () => {
       title: '状态',
       dataIndex: 'status',
       valueType: 'select',
+      hideInTable: true,
+      hideInSearch: true,
       hideInForm: true,
       fieldProps: {
         options: [
@@ -263,7 +286,14 @@ const Account: React.FC = () => {
                     })) || [],
                 }
               : {}),
-            ...(dataIndex === 'salesmanId' ? { options: data2?.list || [] } : {}),
+            ...(dataIndex === 'salesmanId'
+              ? {
+                  options:
+                    (item.hideInSearch
+                      ? data2?.list?.filter((item) => item.status === 1)
+                      : data2?.list) || [],
+                }
+              : {}),
           },
         };
       }),
@@ -325,7 +355,7 @@ const Account: React.FC = () => {
           ],
           rowSelection: false,
           bordered: true,
-          pagination: {},
+          // pagination: {},
           search: {},
           scroll: {
             x: 1400,
