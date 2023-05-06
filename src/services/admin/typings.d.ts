@@ -36,6 +36,8 @@ declare namespace API {
     accountId?: number;
     /** 账户名称 */
     accountName?: string;
+    /** 记账ID */
+    bookkeepId?: number;
     /** 渠道点位 */
     canalPoint?: number;
     /** 百度币 */
@@ -275,6 +277,8 @@ declare namespace API {
   type BookkeepPageReqVO = {
     /** 账户名称 */
     accountName?: string;
+    /** 回款类型 */
+    collection?: string;
     /** 是否回款(0否 1 是) */
     collectionStatus?: number;
     /** 是否抵扣完结(0否,1是) */
@@ -1200,6 +1204,8 @@ declare namespace API {
     accountName?: string;
     /** 退款登记日期 */
     createTime?: string;
+    /** 百度币 */
+    currency?: number;
     /** 退款金额 */
     drawbackAmount?: number;
     /** 退款日期 */

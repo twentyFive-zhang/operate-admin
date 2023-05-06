@@ -32,6 +32,17 @@ import { pageInfoUsingPOST4 } from '@/services/admin/xitongmokuaiduankouguanli';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
 import { useColumnsState } from '@/hooks';
 import PopButton from '@/components/Common/PopButton';
+import { useModel } from '@umijs/max';
+
+/** 是否是管理员，傻缺逻辑 */
+export const useAccountAccess = () => {
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState || {};
+  console.log({ currentUser });
+  return {
+    isAdmin: !!currentUser?.username && ['guanli', 'admin'].includes(currentUser?.username),
+  };
+};
 
 /** 批量回款 */
 
@@ -378,6 +389,8 @@ const Bookkeeping: React.FC = () => {
     return { data: data || {}, success: true };
   };
 
+  const { isAdmin } = useAccountAccess();
+
   const [columns, setColumns] = useState<
     (ProSchema<API.BookkeepUpdateReqVO> & ProFormColumnsType<API.BookkeepUpdateReqVO>)[]
   >([
@@ -417,6 +430,18 @@ const Bookkeeping: React.FC = () => {
     },
     {
       title: '账户名称',
+      dataIndex: 'accountName',
+      hideInForm: true,
+      hideInTable: true,
+      hideInDescriptions: true,
+      hideInSearch: true,
+      fieldProps: {
+        disabled: true,
+      },
+    },
+
+    {
+      title: '账户名称',
       dataIndex: 'accountId',
       hideInTable: true,
       hideInSearch: true,
@@ -431,7 +456,7 @@ const Bookkeeping: React.FC = () => {
         } = await pageInfoUsingPOST8({
           accountName: keyWords,
           pageNum: 1,
-          pageSize: 100000,
+          pageSize: 100,
         });
         return list;
       },
@@ -959,7 +984,7 @@ const Bookkeeping: React.FC = () => {
                 triggerToOpenModal('update', record);
               },
               // @ts-ignore
-              disabled: record.collectionStatus === 1,
+              disabled: record.collectionStatus === 1 && !isAdmin,
             }}
           >
             编辑
@@ -1211,7 +1236,15 @@ const Bookkeeping: React.FC = () => {
           },
           formRef,
           layoutType: 'ModalForm',
-          columns: columns as ProFormColumnsType<API.BookkeepUpdateReqVO>[],
+          columns: (id
+            ? columns.map((item) =>
+                item.dataIndex === 'accountName' && item.hideInTable
+                  ? { ...item, hideInForm: false }
+                  : item.dataIndex === 'accountId'
+                  ? { ...item, hideInForm: true }
+                  : { ...item },
+              )
+            : columns) as ProFormColumnsType<API.BookkeepUpdateReqVO>[],
           onValuesChange,
           onFinish,
           params: { id },

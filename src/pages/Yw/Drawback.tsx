@@ -21,12 +21,12 @@ import {
   importDrawbackUsingPOST,
   deletedUsingDELETE9,
 } from '@/services/admin/yewumokuaituikuanguanli';
-import { Button, Modal, Space, message, Upload, Descriptions } from 'antd';
+import { Button, Modal, Space, message, Upload } from 'antd';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
 import { pageInfoUsingPOST4 } from '@/services/admin/xitongmokuaiduankouguanli';
 import { pageInfoUsingPOST6 } from '@/services/admin/xitongmokuaileixingguanli';
 import { pageInfoUsingPOST5 } from '@/services/admin/xitongmokuaiyewuyuanguanli';
-import { UseModalMultiple } from './Bookkeeping';
+import { UseModalMultiple, useAccountAccess } from './Bookkeeping';
 import { useColumnsState } from '@/hooks';
 import PopButton from '@/components/Common/PopButton';
 // import { SearchOutlined } from '@ant-design/icons';
@@ -418,6 +418,8 @@ const Drawback: React.FC = () => {
     setAccountOpen(true);
   };
 
+  const { isAdmin } = useAccountAccess();
+
   const [columns, setColumns] = useState<ProFormColumnsType<API.DrawbackRespVO>[]>([
     {
       title: '退款单号',
@@ -728,7 +730,7 @@ const Drawback: React.FC = () => {
               onClick: () => {
                 triggerToOpenModal('update', record);
               },
-              disabled: record.drawbackStatus === 1,
+              disabled: record.drawbackStatus === 1 && !isAdmin,
             }}
           >
             编辑
