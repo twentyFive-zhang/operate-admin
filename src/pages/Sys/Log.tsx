@@ -139,6 +139,7 @@ const Log: React.FC = () => {
           search: {},
           pagination: {
             defaultPageSize: 10,
+            showSizeChanger: true,
           },
         }}
       ></ProTable>

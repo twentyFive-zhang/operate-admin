@@ -714,6 +714,15 @@ const Drawback: React.FC = () => {
       colProps: { span: 24 },
     },
     {
+      title: '备注',
+      dataIndex: 'remarks',
+      // valueType: 'input',
+      // hideInSearch: true,
+      hideInForm: true,
+      hideInTable: true,
+      hideInDescriptions: true,
+    },
+    {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
@@ -872,13 +881,16 @@ const Drawback: React.FC = () => {
           columnsState: columnsState,
           pagination: {
             defaultPageSize: 10,
+            showSizeChanger: true,
           },
           scroll: { x: 2800 },
           rowKey: 'id',
           headerTitle: '退款列表',
           formRef: searchFormRef,
           actionRef,
-          rowSelection: {},
+          rowSelection: {
+            preserveSelectedRowKeys: true,
+          },
           // loading,
           columns: columns as ProColumns<API.DrawbackRespVO>[],
           request: async (params: API.BookkeepPageReqVO & { current?: number }) => {

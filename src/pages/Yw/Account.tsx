@@ -331,6 +331,7 @@ const Account: React.FC = () => {
           actionRef,
           pagination: {
             defaultPageSize: 10,
+            showSizeChanger: true,
           },
           headerTitle: '开户管理',
           // search: false,

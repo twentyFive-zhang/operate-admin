@@ -479,6 +479,7 @@ const User: React.FC = () => {
           bordered: true,
           pagination: {
             defaultPageSize: 10,
+            showSizeChanger: true,
           },
         }}
       ></ProTable>

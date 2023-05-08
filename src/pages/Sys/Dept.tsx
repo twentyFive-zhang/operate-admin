@@ -116,6 +116,7 @@ const Dept: React.FC = () => {
           headerTitle: '部门列表',
           pagination: {
             defaultPageSize: 10,
+            showSizeChanger: true,
           },
           columns,
           request,

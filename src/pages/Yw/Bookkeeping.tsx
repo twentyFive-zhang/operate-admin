@@ -23,7 +23,7 @@ import {
   deletedUsingDELETE8,
 } from '@/services/admin/yewumokuaijizhangguanli';
 import { batchCollectionUsingPOST1 } from '@/services/admin/yewumokuaituikuanguanli';
-import { Button, Input, Upload, message, Modal, Table, Switch } from 'antd';
+import { Button, Input, Upload, message, Modal, Table, Switch, InputNumber } from 'antd';
 import { useState, useRef, useEffect } from 'react';
 import { pageInfoUsingPOST8 } from '@/services/admin/yewumokuaikaihuguanli';
 import { pageInfoUsingPOST5 } from '@/services/admin/xitongmokuaiyewuyuanguanli';
@@ -57,21 +57,25 @@ export const UseModalMultiple = <T extends object>(
 } => {
   const [open, setOpen] = useState<boolean>(false);
   const [list, setList] = useState<T[]>([]);
+
   // const []
 
   const triggerToShowBack = (selectedRows: T[]) => {
-    const salesIdList = Array.from(new Set(selectedRows?.map((item) => item.salesmanName)));
-    console.log({ salesIdList }, salesIdList.length);
-    if (salesIdList?.length > 1) {
-      message.warning('只能批量操作同一业务员的数据,请重新选择');
-      return false;
-    }
+    // 扯，突然不要同一个业务员了
+    // const salesIdList = Array.from(new Set(selectedRows?.map((item) => item.salesmanName)));
+    // console.log({ salesIdList }, salesIdList.length);
+    // if (salesIdList?.length > 1) {
+    //   message.warning('只能批量操作同一业务员的数据,请重新选择');
+    //   return false;
+    // }
     // return false;
     setOpen(true);
     setList(selectedRows);
   };
 
   const onFinish = async (values) => {
+    console.log({ values });
+    // return;
     const ajaxFun = type === 'drawerBack' ? batchCollectionUsingPOST1 : batchCollectionUsingPOST;
     // @ts-ignore
     await ajaxFun({ ...values, ids: list?.map((item) => item.id) });
@@ -98,19 +102,26 @@ export const UseModalMultiple = <T extends object>(
               dataIndex: 'ids',
               readonly: true,
               render: () => (
-                <Table
+                <Table<T>
                   {...{
                     rowKey: 'id',
                     bordered: true,
                     dataSource: list,
                     pagination: false,
+
+                    scroll: { y: 300 },
                     summary: () => (
-                      <Table.Summary>
+                      <Table.Summary {...{ fixed: true }}>
                         <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={3}>
-                            总回款金额
-                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>总额</Table.Summary.Cell>
                           <Table.Summary.Cell index={1}>
+                            {parseFloat(
+                              // @ts-ignore
+                              list?.reduce((all, item) => (item.currency || 0) + all, 0) || 0,
+                            ).toFixed(2)}
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                          <Table.Summary.Cell index={3}>
                             {/* @ts-ignore */}
                             {parseFloat(
                               // @ts-ignore
@@ -178,16 +189,26 @@ export const UseModalMultiple = <T extends object>(
   };
 
   const DrawerBackModal = () => {
+    const [nList, setNList] = useState<T[]>([]);
+    useEffect(() => {
+      console.log({ list });
+      setNList(JSON.parse(JSON.stringify(list)));
+    }, [list]);
+    // useEffect(() => {
+    //   console.log('nlist 更新', nList);
+    // }, [nList]);
     return (
       <BetaSchemaForm
         {...{
-          title: `批量退款-【${list?.[0]?.salesmanName}】`,
+          title: `批量退款-【${nList?.[0]?.salesmanName}】`,
           layoutType: 'ModalForm',
           open: open && type === 'drawerBack',
           onOpenChange: (status) => {
             setOpen(status);
           },
-          onFinish,
+          onFinish: (values) => {
+            onFinish({ ...values, list: nList.map(({ id, currency }) => ({ id, currency })) });
+          },
           columns: [
             {
               title: '已选中退款列表',
@@ -198,19 +219,26 @@ export const UseModalMultiple = <T extends object>(
                   {...{
                     rowKey: 'id',
                     bordered: true,
-                    dataSource: list,
+                    dataSource: nList,
                     pagination: false,
+                    scroll: { y: 300 },
                     summary: () => (
-                      <Table.Summary>
+                      <Table.Summary {...{ fixed: true }}>
                         <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} colSpan={3}>
-                            总退款金额
-                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={0}>总额</Table.Summary.Cell>
                           <Table.Summary.Cell index={1}>
+                            {parseFloat(
+                              // @ts-ignore
+                              nList?.reduce((all, item) => (item.currency || 0) + all, 0) || 0,
+                            ).toFixed(2)}
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                          <Table.Summary.Cell index={3}>
                             {/* @ts-ignore */}
                             {parseFloat(
                               // @ts-ignore
-                              list?.reduce((all, item) => (item.drawbackAmount || 0) + all, 0) || 0,
+                              nList?.reduce((all, item) => (item.drawbackAmount || 0) + all, 0) ||
+                                0,
                             ).toFixed(2)}
                           </Table.Summary.Cell>
                         </Table.Summary.Row>
@@ -228,6 +256,30 @@ export const UseModalMultiple = <T extends object>(
                       {
                         title: '百度币',
                         dataIndex: 'currency',
+                        render: (value, { id }) => (
+                          <InputNumber
+                            {...{
+                              defaultValue: value,
+                              precision: 2,
+                              onBlur: (v) => {
+                                console.log({ v }, v.target.value);
+                                setNList([
+                                  ...nList.map((item) =>
+                                    item.id === id
+                                      ? {
+                                          ...item,
+                                          currency: Number(v.target.value) * 1,
+                                          drawbackAmount:
+                                            // @ts-ignore
+                                            (v.target.value / item.canalPoint).toFixed(2) * 1,
+                                        }
+                                      : item,
+                                  ),
+                                ]);
+                              },
+                            }}
+                          ></InputNumber>
+                        ),
                       },
                       {
                         title: '渠道点位',
@@ -237,6 +289,8 @@ export const UseModalMultiple = <T extends object>(
                       {
                         title: '退款金额',
                         dataIndex: 'drawbackAmount',
+                        render: (_v, { canalPoint, currency }) =>
+                          (currency / canalPoint).toFixed(2),
                       },
                     ],
                   }}
@@ -334,6 +388,14 @@ const ExportButton: React.FC<{ onBefore: () => API.BookkeepPageReqVO }> = ({ onB
       导出
     </Button>
   );
+};
+
+const useRowSelection = () => {
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  return {
+    selectedRowKeys,
+  };
 };
 
 const Bookkeeping: React.FC = () => {
@@ -626,7 +688,7 @@ const Bookkeeping: React.FC = () => {
       },
       render: (_dom, { deductionEndStatus, id }, index, action) => {
         // console.log({ deductionEndStatus });
-        if (typeof deductionEndStatus === 'number') {
+        if (typeof deductionEndStatus === 'number' && [0, 1].includes(deductionEndStatus)) {
           return (
             <Switch
               {...{
@@ -968,6 +1030,15 @@ const Bookkeeping: React.FC = () => {
       colProps: { span: 24 },
     },
     {
+      title: '备注',
+      dataIndex: 'remarks',
+      // valueType: 'input',
+      hideInForm: true,
+      // hideInSearch: true,
+      hideInTable: true,
+      hideInDescriptions: true,
+    },
+    {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
@@ -984,7 +1055,7 @@ const Bookkeeping: React.FC = () => {
                 triggerToOpenModal('update', record);
               },
               // @ts-ignore
-              disabled: record.collectionStatus === 1 && !isAdmin,
+              disabled: record.status === 0 && !isAdmin,
             }}
           >
             编辑
@@ -1120,8 +1191,13 @@ const Bookkeeping: React.FC = () => {
     const ajaxFun = type === 'add' ? addUsingPOST : updateUsingPUT;
     // if (typeof values.accountId === 'object') {
     // }
+    const { deductionEndStatus, ...rest } = {
+      ...record,
+      ...values,
+      accountId: values.accountId?.id || values.accountId,
+    };
     // @ts-ignore
-    await ajaxFun({ ...record, ...values, accountId: values.accountId?.id || values.accountId });
+    await ajaxFun(rest);
     message.success(`${title}成功`);
     setOpen(false);
     actionRef.current?.reload();
@@ -1152,12 +1228,15 @@ const Bookkeeping: React.FC = () => {
           headerTitle: '记账列表',
           rowKey: 'id',
           scroll: { x: 2700 },
-          rowSelection: {},
+          rowSelection: {
+            preserveSelectedRowKeys: true,
+          },
           formRef: searchFormRef,
           actionRef,
           columnsState: columnsState,
           pagination: {
             defaultPageSize: 10,
+            showSizeChanger: true,
           },
           toolBarRender: (action, { selectedRows }) => [
             <Button
