@@ -44,10 +44,10 @@ declare namespace API {
     currency?: number;
     /** 是否有抵扣(0否,1是) */
     deductionStatus?: number;
-    deductionVo?: DeductionVo;
+    deductionVo?: DeductionVo[];
     /** 是否有退款(0否,1是) */
     drawbackStatus?: number;
-    drawbackVo?: DrawbackVo;
+    drawbackVo?: DrawbackVo[];
     /** 拿到点位 */
     getPoint?: number;
     /** 端口id */

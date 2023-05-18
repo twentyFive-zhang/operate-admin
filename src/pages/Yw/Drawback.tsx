@@ -21,7 +21,7 @@ import {
   importDrawbackUsingPOST,
   deletedUsingDELETE9,
 } from '@/services/admin/yewumokuaituikuanguanli';
-import { Button, Modal, Space, message, Upload } from 'antd';
+import { Button, Modal, Space, message, Upload, Table, Typography } from 'antd';
 import { UploadOutlined, ExportOutlined } from '@ant-design/icons';
 import { pageInfoUsingPOST4 } from '@/services/admin/xitongmokuaiduankouguanli';
 import { pageInfoUsingPOST6 } from '@/services/admin/xitongmokuaileixingguanli';
@@ -29,7 +29,9 @@ import { pageInfoUsingPOST5 } from '@/services/admin/xitongmokuaiyewuyuanguanli'
 import { UseModalMultiple, useAccountAccess } from './Bookkeeping';
 import { useColumnsState } from '@/hooks';
 import PopButton from '@/components/Common/PopButton';
+import dayjs from 'dayjs';
 // import { SearchOutlined } from '@ant-design/icons';
+const { Title } = Typography;
 
 const ImportFile: React.FC<{ onCbk: () => void }> = ({ onCbk }) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -159,80 +161,106 @@ const AccountListModal: React.FC<{
           actionRef,
           formRef,
           expandable: {
-            rowExpandable: ({ deductionVo, drawbackVo }) => !!deductionVo || !!drawbackVo,
+            rowExpandable: ({ deductionVo, drawbackVo }) =>
+              !!drawbackVo?.length || !!deductionVo?.length,
             expandedRowRender: ({ deductionVo, drawbackVo }) => (
-              <Space {...{ direction: 'vertical' }} style={{ display: 'flex' }}>
-                {drawbackVo && (
-                  <ProDescriptions<API.DrawbackVo>
-                    {...{
-                      title: '退款详情',
-                      // style: { width: '100%' },
-                      bordered: true,
-                      column: 3,
-                      layout: 'vertical',
-                      columns: [
-                        {
-                          title: '退款账户名称',
-                          dataIndex: 'accountName',
-                        },
-                        {
-                          title: '退款金额',
-                          dataIndex: 'drawbackAmount',
-                        },
-                        {
-                          title: '百度币',
-                          dataIndex: 'currency',
-                        },
+              <>
+                {!!drawbackVo?.length && (
+                  <>
+                    <Title {...{ level: 5 }}>退款详情</Title>
+                    <Table
+                      {...{
+                        // title: '退款详情',
+                        // style: { width: '100%' },
+                        bordered: true,
+                        pagination: false,
+                        rowKey: 'createTime',
+                        // options: false,
+                        // search: false,
+                        // layout: 'vertical',
+                        columns: [
+                          {
+                            title: '退款账户名称',
+                            dataIndex: 'accountName',
+                          },
+                          {
+                            title: '退款金额',
+                            dataIndex: 'drawbackAmount',
+                          },
+                          {
+                            title: '百度币',
+                            dataIndex: 'currency',
+                          },
 
-                        {
-                          title: '退款登记时间',
-                          dataIndex: 'createTime',
-                          valueType: 'date',
-                        },
-                        {
-                          title: '退款时间',
-                          dataIndex: 'drawbackTime',
-                          valueType: 'date',
-                        },
-                      ],
-                      request: async () => ({ data: drawbackVo, success: true }),
-                    }}
-                  ></ProDescriptions>
+                          {
+                            title: '退款登记时间',
+                            dataIndex: 'createTime',
+                            // valueType: 'date',
+
+                            render: (v) => (v && dayjs(v).format('YYYY-MM-DD')) || '-',
+                          },
+                          {
+                            title: '退款时间',
+                            dataIndex: 'drawbackTime',
+                            // valueType: 'date',
+                            render: (v) => (v && dayjs(v).format('YYYY-MM-DD')) || '-',
+                          },
+                        ],
+                        // request: async () => ({
+                        //   data: drawbackVo as API.DrawbackVo[],
+                        //   success: true,
+                        // }),
+                        dataSource: drawbackVo,
+                      }}
+                    ></Table>
+                  </>
                 )}
-                {deductionVo && (
-                  <ProDescriptions<API.DeductionVo>
-                    {...{
-                      title: '抵扣详情',
-                      // style: { width: '100%' },
-                      bordered: true,
-                      column: 4,
-                      layout: 'vertical',
-                      columns: [
-                        {
-                          title: '充值账户名称',
-                          dataIndex: 'accountName',
-                        },
-                        {
-                          title: '抵扣账户名称',
-                          dataIndex: 'deductionName',
-                          labelStyle: { color: 'red' },
-                          contentStyle: { color: 'red' },
-                        },
-                        {
-                          title: '抵扣金额',
-                          dataIndex: 'amount',
-                        },
-                        {
-                          title: '抵扣时间',
-                          dataIndex: 'deductionTime',
-                          valueType: 'date',
-                        },
-                      ],
-                      request: async () => ({ data: deductionVo, success: true }),
-                    }}
-                  ></ProDescriptions>
+                {!!deductionVo?.length && (
+                  <>
+                    <Title {...{ level: 5 }}>抵扣详情</Title>
+
+                    <Table
+                      {...{
+                        // title: '抵扣详情',
+                        // style: { width: '100%' },
+                        options: false,
+                        search: false,
+                        rowKey: 'deductionTime',
+                        bordered: true,
+                        columns: [
+                          {
+                            title: '充值账户名称',
+                            dataIndex: 'accountName',
+                          },
+                          {
+                            title: <div style={{ color: 'red' }}>抵扣账户名称</div>,
+                            dataIndex: 'deductionName',
+                            render: (v) => <div style={{ color: 'red' }}>{v}</div>,
+                            // labelStyle: { color: 'red' },
+                            // contentStyle: { color: 'red' },
+                          },
+                          {
+                            title: '抵扣金额',
+                            dataIndex: 'amount',
+                          },
+                          {
+                            title: '抵扣时间',
+                            dataIndex: 'deductionTime',
+                            render: (v) => (v && dayjs(v).format('YYYY-MM-DD')) || '-',
+                            // valueType: 'date',
+                          },
+                        ],
+                        dataSource: deductionVo,
+                        pagination: false,
+                        // request: async () => ({
+                        //   data: deductionVo as API.DeductionVo[],
+                        //   success: true,
+                        // }),
+                      }}
+                    ></Table>
+                  </>
                 )}
-              </Space>
+              </>
             ),
           },
           rowKey: ({ typeId, accountId }) => `${typeId}-${accountId}`,
@@ -696,7 +724,7 @@ const Drawback: React.FC = () => {
     {
       title: '更新人',
       dataIndex: 'updateName',
-      hideInSearch: true,
+      // hideInSearch: true,
       hideInForm: true,
     },
     {

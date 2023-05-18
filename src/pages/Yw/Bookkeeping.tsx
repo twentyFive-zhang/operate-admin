@@ -207,7 +207,15 @@ export const UseModalMultiple = <T extends object>(
             setOpen(status);
           },
           onFinish: (values) => {
-            onFinish({ ...values, list: nList.map(({ id, currency }) => ({ id, currency })) });
+            const { remarks } = values;
+            onFinish({
+              ...values,
+              list: nList.map(({ id, currency }) => ({
+                id,
+                currency,
+                ...(remarks ? { remarks } : {}),
+              })),
+            });
           },
           columns: [
             {
@@ -292,25 +300,79 @@ export const UseModalMultiple = <T extends object>(
                         render: (_v, { canalPoint, currency }) =>
                           (currency / canalPoint).toFixed(2),
                       },
+                      // {
+                      //   title: '备注',
+                      //   dataIndex: 'remarks',
+                      //   render: (value, { id }) => (
+                      //     <Input
+                      //       {...{
+                      //         defaultValue: value,
+                      //         onBlur: (v) => {
+                      //           setNList([
+                      //             ...nList.map((item) =>
+                      //               item.id === id
+                      //                 ? { ...item, remarks: v.target.value }
+                      //                 : { ...item },
+                      //             ),
+                      //           ]);
+                      //         },
+                      //       }}
+                      //     ></Input>
+                      //   ),
+                      // },
                     ],
                   }}
                 ></Table>
               ),
             },
             {
-              title: '是否退款',
-              dataIndex: 'drawbackStatus',
+              title: '核对/退款',
+              dataIndex: 'selectStatus',
               valueType: 'select',
-              fieldProps: {
-                options: [
-                  { label: '未退款', value: 0 },
-                  { label: '已退款', value: 1 },
-                  { label: '不退款', value: 2 },
-                ],
-              },
               formItemProps: {
                 rules: [{ required: true, message: '请选择' }],
               },
+
+              fieldProps: {
+                options: [
+                  { label: '核对', value: 0 },
+                  { label: '退款', value: 1 },
+                ],
+              },
+            },
+            {
+              valueType: 'dependency',
+              name: ['selectStatus'],
+              columns: ({ selectStatus }) =>
+                selectStatus === 1
+                  ? [
+                      {
+                        title: '是否退款',
+                        dataIndex: 'drawbackStatus',
+                        valueType: 'select',
+                        fieldProps: {
+                          options: [
+                            { label: '未退款', value: 0 },
+                            { label: '已退款', value: 1 },
+                            { label: '不退款', value: 2 },
+                          ],
+                        },
+                        formItemProps: {
+                          rules: [{ required: true, message: '请选择' }],
+                        },
+                      },
+                    ]
+                  : selectStatus === 0
+                  ? [
+                      {
+                        title: '备注',
+                        dataIndex: 'remarks',
+                        formItemProps: {
+                          rules: [{ required: true, message: '请选择' }],
+                        },
+                      },
+                    ]
+                  : [],
             },
           ],
         }}
