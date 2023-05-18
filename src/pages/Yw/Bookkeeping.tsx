@@ -82,6 +82,8 @@ export const UseModalMultiple = <T extends object>(
     message.success('批量操作成功');
     actionRef.current?.reload();
     setOpen(false);
+    actionRef.current?.clearSelected?.();
+
     return true;
   };
 
@@ -129,6 +131,16 @@ export const UseModalMultiple = <T extends object>(
                                 0,
                             ).toFixed(2)}
                           </Table.Summary.Cell>
+                          <Table.Summary.Cell index={4}>
+                            {/* @ts-ignore */}
+                            {parseFloat(
+                              // @ts-ignore
+                              list?.reduce(
+                                (all, item) => (item.externalSettlement || 0) + all,
+                                0,
+                              ) || 0,
+                            ).toFixed(2)}
+                          </Table.Summary.Cell>
                         </Table.Summary.Row>
                       </Table.Summary>
                     ),
@@ -158,6 +170,10 @@ export const UseModalMultiple = <T extends object>(
                         title: '回款金额',
                         dataIndex: 'collectionAmount',
                       },
+                      {
+                        title: '对外结算',
+                        dataIndex: 'externalSettlement',
+                      },
                     ],
                   }}
                 ></Table>
@@ -181,6 +197,10 @@ export const UseModalMultiple = <T extends object>(
               formItemProps: {
                 // rules: [{ required: true, message: '请输入对外支付' }],
               },
+            },
+            {
+              title: '备注',
+              dataIndex: 'remarks',
             },
           ],
         }}
@@ -249,6 +269,17 @@ export const UseModalMultiple = <T extends object>(
                                 0,
                             ).toFixed(2)}
                           </Table.Summary.Cell>
+                          <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                          <Table.Summary.Cell index={5}>
+                            {/* @ts-ignore */}
+                            {parseFloat(
+                              // @ts-ignore
+                              nList?.reduce(
+                                (all, item) => (item.externalSettlement || 0) + all,
+                                0,
+                              ) || 0,
+                            ).toFixed(2)}
+                          </Table.Summary.Cell>
                         </Table.Summary.Row>
                       </Table.Summary>
                     ),
@@ -280,6 +311,9 @@ export const UseModalMultiple = <T extends object>(
                                           drawbackAmount:
                                             // @ts-ignore
                                             (v.target.value / item.canalPoint).toFixed(2) * 1,
+                                          externalSettlement:
+                                            // @ts-ignore
+                                            (v.target.value / item.getPoint).toFixed(2) * 1,
                                         }
                                       : item,
                                   ),
@@ -297,8 +331,17 @@ export const UseModalMultiple = <T extends object>(
                       {
                         title: '退款金额',
                         dataIndex: 'drawbackAmount',
-                        render: (_v, { canalPoint, currency }) =>
-                          (currency / canalPoint).toFixed(2),
+                        // render: (_v, { canalPoint, currency }) =>
+                        //   (currency / canalPoint).toFixed(2),
+                      },
+                      {
+                        title: '拿到点位',
+                        dataIndex: 'getPoint',
+                      },
+                      {
+                        title: '对外结算',
+                        dataIndex: 'externalSettlement',
+                        // render: (_v, { currency, getPoint }) => (currency / getPoint).toFixed(2),
                       },
                       // {
                       //   title: '备注',
