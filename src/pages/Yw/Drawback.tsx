@@ -279,6 +279,7 @@ const AccountListModal: React.FC<{
               valueType: 'digit',
               fieldProps: {
                 precision: 2,
+                min: Number.MIN_SAFE_INTEGER,
               },
             },
             {
@@ -694,6 +695,7 @@ const Drawback: React.FC = () => {
       valueType: 'digit',
       fieldProps: {
         precision: 2,
+        min: Number.MIN_SAFE_INTEGER,
       },
     },
     {

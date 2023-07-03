@@ -164,6 +164,7 @@ export const UseModalMultiple = <T extends object>(
                         valueType: 'digit',
                         fieldProps: {
                           precision: 2,
+                          min: Number.MIN_SAFE_INTEGER,
                         },
                       },
                       {
@@ -753,6 +754,7 @@ const Bookkeeping: React.FC = () => {
       valueType: 'digit',
       fieldProps: {
         precision: 2,
+        min: Number.MIN_SAFE_INTEGER,
       },
     },
     {
